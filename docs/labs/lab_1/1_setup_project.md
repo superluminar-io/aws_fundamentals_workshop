@@ -118,4 +118,10 @@ To ensure the environment is clean for the next lab, follow these steps to delet
    }
    ```
 
+## Troubleshooting
+
+- If you encounter "command not found" errors, ensure that Node.js and npm are correctly installed and added to your system PATH.
+- If `cdk deploy` fails, check your AWS credentials and ensure you have the necessary permissions to create resources.
+- If you're using AWS SSO and encounter authentication issues, make sure you've successfully logged in using `aws sso login` before running CDK commands.
+
 Great work! You've set up your initial project environment using AWS CDK, deployed a basic stack, and cleaned up the environment for the next lab. This process has given you a strong starting point for building more complex cloud applications with AWS CDK.

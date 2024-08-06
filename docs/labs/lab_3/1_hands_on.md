@@ -57,7 +57,26 @@ npm install @aws-cdk/aws-ec2
    }
    ```
 
+   > **Important:** Unlike the previous labs, we will be extending this stack in the following labs. It's crucial to keep this code as is before moving on to the next lab. This will serve as the foundation for our upcoming work with AWS services.
+
    This code sets up a VPC with both public and private subnets, configured with a NAT Gateway for internet access from private subnets.
+
+## Understanding CIDR Blocks in VPC Configuration
+
+In the VPC configuration, we use CIDR blocks to define the IP address ranges for our subnets:
+
+- The VPC uses a CIDR block of /16, which provides 65,536 available IP addresses.
+- Public and private subnets use /24 CIDR blocks, each providing 256 IP addresses.
+
+This configuration allows for efficient IP address allocation while maintaining a clear separation between public and private resources.
+
+## VPC Network Diagram
+
+Here's a visual representation of our VPC structure:
+
+```
+[Insert a network diagram showing the VPC with public and private subnets]
+```
 
 ## Configure Security Groups
 

@@ -1,6 +1,6 @@
-# Lab 4: Basic AWS Services
+# Lab 4: Core AWS Services
 
-## Deploy Basic Services Using CDK
+## Deploy Core Services Using CDK
 
 In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2 instance. You will also perform tasks in the AWS Management Console such as checking CloudWatch, adding a bucket policy, and running a CLI command to retrieve the instance ID.
 
@@ -169,5 +169,41 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
      ]
    }
    ```
+
+## EC2 Instance Management Best Practices
+
+1. Use IAM roles instead of storing AWS credentials on EC2 instances.
+2. Regularly patch and update your EC2 instances to maintain security.
+3. Use Amazon CloudWatch for monitoring and set up alarms for critical metrics.
+4. Implement proper security group rules to control inbound and outbound traffic.
+5. Use Amazon EC2 Auto Scaling to automatically adjust capacity based on demand.
+
+## S3 Bucket Policies and Versioning
+
+When creating an S3 bucket, consider implementing these security features:
+
+1. Bucket Policy: Restrict access to your S3 bucket using a bucket policy. Here's an example that allows read access only from a specific IAM role:
+
+```typescript
+const myBucketPolicy = new s3.BucketPolicy(this, "MyBucketPolicy", {
+  bucket: myBucket,
+});
+
+myBucketPolicy.document.addStatements(
+  new iam.PolicyStatement({
+    actions: ["s3:GetObject"],
+    resources: [myBucket.arnForObjects("*")],
+    principals: [new iam.ArnPrincipal("arn:aws:iam::123456789012:role/MyRole")],
+  })
+);
+```
+
+2. Versioning: Enable versioning to keep multiple variants of objects in the bucket:
+
+```typescript
+const myBucket = new s3.Bucket(this, "MyBucket", {
+  versioned: true,
+});
+```
 
 Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK. You've also verified their configurations and monitored their operations with CloudWatch. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.

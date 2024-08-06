@@ -1,6 +1,6 @@
-# AWS Basics and Core Services Workshop
+# AWS Fundamentals Workshop
 
-![Welcome to AWS Basics and Core Services Workshop](media/welcome.png)
+![Welcome to AWS Fundamentals Workshop](media/welcome.png)
 
 ## Project Overview
 
@@ -68,3 +68,19 @@ The purpose of this workshop is to provide a foundational understanding of AWS s
 - **Hands-On: Set up RDS for relational data storage using CDK**
   - Create an RDS instance with CDK
   - Configure database parameters and settings
+
+## Prerequisites
+
+- Basic understanding of programming concepts
+- Familiarity with command-line interfaces
+- AWS account (free tier is sufficient for this workshop)
+
+## Workshop Duration
+
+Total estimated time: 4-5 hours
+
+- Lab 1: 45 minutes
+- Lab 2: 45 minutes
+- Lab 3: 1 hour
+- Lab 4: 1 hour
+- Lab 5: 1 hour

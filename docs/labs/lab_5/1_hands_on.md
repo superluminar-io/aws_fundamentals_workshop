@@ -168,6 +168,51 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
    - **Parameter Groups**: In the AWS Management Console, navigate to the RDS service, select your database instance, and configure the parameter group to fine-tune database settings.
    - **Option Groups**: Add necessary options to your RDS instance using option groups, such as enabling performance insights or additional monitoring tools.
 
+## RDS Backup and Restore Procedures
+
+1. Automated Backups:
+
+   - Enable automated backups when creating your RDS instance:
+     ```typescript
+     const myDatabase = new rds.DatabaseInstance(this, "MyDatabase", {
+       // ... other configuration ...
+       backupRetention: cdk.Duration.days(7),
+     });
+     ```
+
+2. Manual Snapshots:
+
+   - Create a manual snapshot before major changes:
+     ```bash
+     aws rds create-db-snapshot --db-instance-identifier my-database --db-snapshot-identifier my-snapshot
+     ```
+
+3. Restore from Snapshot:
+   - To restore from a snapshot, use the AWS Management Console or AWS CLI:
+     ```bash
+     aws rds restore-db-instance-from-db-snapshot --db-instance-identifier my-new-database --db-snapshot-identifier my-snapshot
+     ```
+
+## RDS Encryption Options
+
+1. Encryption at Rest:
+
+   - Enable encryption at rest when creating your RDS instance:
+     ```typescript
+     const myDatabase = new rds.DatabaseInstance(this, "MyDatabase", {
+       // ... other configuration ...
+       storageEncrypted: true,
+       encryptionKey: kms.Key.fromKeyArn(
+         this,
+         "MyKey",
+         "arn:aws:kms:region:account:key/key-id"
+       ),
+     });
+     ```
+
+2. Encryption in Transit:
+   - Use SSL/TLS for connections to your RDS instance. In your application, ensure you're using an SSL-enabled connection string.
+
 ## Summary of Steps
 
 - Set up the VPC and security groups using AWS CDK.
@@ -175,4 +220,4 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
 - Deploy the stack and verify the RDS instance using the AWS Management Console and CLI.
 - Configure database parameters and option groups to optimize the RDS instance.
 
-You’ve successfully set up an RDS instance for relational data storage using AWS CDK. This lab completes your journey through creating and managing various AWS services using CDK, equipping you with practical skills for building and managing cloud infrastructure.
+You've successfully set up an RDS instance for relational data storage using AWS CDK. This lab completes your journey through creating and managing various AWS services using CDK, equipping you with practical skills for building and managing cloud infrastructure.

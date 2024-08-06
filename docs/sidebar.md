@@ -4,17 +4,23 @@
   - Lab 1
     - [Intro to CDK](/labs/lab_1/0_cdk_intro)
     - [Hands On](labs/lab_1/1_setup_project)
+    - [Resources](labs/lab_1/2_resources)
   - Lab 2
     - [Intro to IAM](labs/lab_2/0_iam_intro)
     - [Hands On](labs/lab_2/1_hands_on_iam)
+    - [Resources](labs/lab_2/2_resources)
   - Lab 3
     - [Intro to Networking](/labs/lab_3/0_networking_intro)
     - [Hands On](labs/lab_3/1_hands_on)
+    - [Resources](labs/lab_3/2_resources)
   - Lab 4
     - [Intro to Core Services](/labs/lab_4/0_core_services_intro)
     - [Hands On](labs/lab_4/1_hands_on)
+    - [Resources](labs/lab_4/2_resources)
   - Lab 5
-    - [RDS Overview](/labs/lab_5/_0_rds_overview)
+    - [RDS Overview](labs/lab_5/0_rds_overview)
     - [Hands On](labs/lab_5/1_hands_on)
-
-<!-- - [What’s next?](/next) -->
+    - [Resources](labs/lab_5/2_resources)
+  - [Clean Up](labs/lab_cleanup)
+- [Next Steps](2_next)
+- [Conclusion](3_conclusion)

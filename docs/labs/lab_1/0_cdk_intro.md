@@ -16,13 +16,60 @@ To begin using AWS CDK, you'll need to set up your development environment. This
    npm install -g aws-cdk
    ```
 
-3. **Configure AWS Credentials**: AWS CDK requires credentials to interact with your AWS account. You can configure your AWS credentials using the AWS CLI. If you haven't already installed the AWS CLI, you can download it from the AWS CLI installation guide. After installing, configure your credentials:
+   To verify the installation, run:
 
    ```bash
-   aws configure
+   cdk --version
    ```
 
-   Follow the prompts to enter your AWS Access Key ID, Secret Access Key, region, and output format.
+   If you encounter permission errors, you may need to use sudo:
+
+   ```bash
+   sudo npm install -g aws-cdk
+   ```
+
+   For detailed installation instructions and troubleshooting, refer to the [official AWS CDK documentation](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install).
+
+   Before using the CDK CLI, ensure you have:
+
+   1. [Installed the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+   2. [Configured your AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
+
+3. **Configure AWS Credentials**: AWS CDK requires credentials to interact with your AWS account. You can configure your AWS credentials using the AWS CLI. If you haven't already installed the AWS CLI, you can download it from the AWS CLI installation guide. After installing, configure your credentials:
+
+   If you're using AWS Single Sign-On (SSO), also known as AWS IAM Identity Center, you'll need to configure the AWS CLI to use SSO authentication. Here's how if you haven't done so already:
+
+   1. Run the following command:
+
+      ```bash
+      aws configure sso
+      ```
+
+   2. You'll be prompted to enter the following information:
+
+      - SSO start URL (https://your-domain.awsapps.com/start)
+      - SSO Region (e.g., us-east-1)
+      - SSO registration scopes (default is fine for most cases)
+
+   3. The CLI will then open a browser window for you to log in to your SSO account.
+
+   4. After successful login, you'll be asked to choose an AWS account and role to use.
+
+   5. Finally, you'll be asked to name this profile. Choose a name that's meaningful to you.
+
+   After this setup, you can use the profile by specifying it when running AWS CLI commands:
+
+   ```bash
+   aws s3 ls --profile your-profile-name
+   ```
+
+   Or set it as your default profile:
+
+   ```bash
+   export AWS_PROFILE=your-profile-name
+   ```
+
+   This method is more secure as it doesn't require long-lived access keys to be stored on your machine.
 
 4. **Bootstrapping Your AWS Environment**: Before deploying your first CDK app, you need to bootstrap your AWS environment. Bootstrapping sets up the necessary resources that the AWS CDK needs to perform deployments (like an S3 bucket for storing files and an ECR repository for container images). To bootstrap, run the following command:
    ```bash

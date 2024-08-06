@@ -12,6 +12,18 @@ Amazon Simple Storage Service (Amazon S3) is an object storage service that offe
 
 AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers. Lambda runs your code only when needed and scales automatically, from a few requests per day to thousands per second. You can use Lambda to run code for virtually any type of application or backend service, all with zero administration.
 
+## Principle of Least Privilege
+
+The principle of least privilege is a fundamental concept in security that states that a user, program, or process should have only the bare minimum privileges necessary to perform its function. In the context of IAM, this means granting only the permissions required for a specific task or role, and nothing more. This practice helps to minimize the potential damage from errors or malicious actions.
+
+## IAM Components Relationship
+
+Here's a diagram showing the relationship between IAM users, roles, and policies:
+
+```
+[Insert a diagram here showing IAM users, roles, and policies]
+```
+
 ## Create IAM Roles, Policies, and Resources
 
 1. **Set Up Your CDK Project**

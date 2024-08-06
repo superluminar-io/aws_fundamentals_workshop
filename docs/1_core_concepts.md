@@ -72,6 +72,14 @@ Cloud computing has revolutionized how businesses manage their IT resources by p
 - **Platform as a Service (PaaS)**: PaaS provides a platform that allows developers to build, deploy, and manage applications without worrying about the underlying infrastructure. It offers a set of tools and services designed to make the development process more efficient. AWS Elastic Beanstalk is an example of PaaS, enabling developers to deploy and scale web applications and services. With PaaS, the provider manages the infrastructure, operating system, and middleware, allowing developers to focus solely on writing code and developing their applications.
 - **Software as a Service (SaaS)**: SaaS delivers software applications over the internet on a subscription basis. These applications are hosted and managed by the service provider, eliminating the need for businesses to install and maintain software on their own servers. SaaS applications are accessible from any device with an internet connection, providing flexibility and ease of use. Examples of SaaS include Amazon WorkSpaces, a cloud-based virtual desktop service, and Amazon Chime, a communications service for online meetings and video conferencing. SaaS is ideal for applications that require web or mobile access and for businesses looking to offload the management and maintenance of software applications.
 
+### Cloud Computing Models Comparison
+
+| Model | Control | Flexibility | Management Overhead | Example AWS Services   |
+| ----- | ------- | ----------- | ------------------- | ---------------------- |
+| IaaS  | High    | High        | High                | EC2, EBS, VPC          |
+| PaaS  | Medium  | Medium      | Medium              | Elastic Beanstalk, ECS |
+| SaaS  | Low     | Low         | Low                 | WorkSpaces, Chime      |
+
 ### Use Cases and Examples for IaaS, PaaS, and SaaS
 
 Understanding the appropriate use cases for each cloud computing model is crucial for leveraging their full potential:

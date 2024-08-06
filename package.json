@@ -1,7 +1,7 @@
 {
-  "name": "serverless-workshop",
+  "name": "aws-fundamentals-workshop",
   "version": "1.0.0",
-  "description": "Hands-on AWS serverless workshop for beginners",
+  "description": "Hands-on AWS fundamentals workshop for beginners",
   "workspaces": [
     "packages/*"
   ],
@@ -9,7 +9,6 @@
     "doc": "docs"
   },
   "scripts": {
-    "install:frontend": "cd packages/lab5/frontend && npm install",
     "start": "docsify serve ./docs",
     "test:all": "npm run test --workspaces",
     "projen:all": "npm run projen --workspaces",
@@ -19,15 +18,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/superluminar-io/serverless-workshop.git"
+    "url": "git+https://github.com/superluminar-io/TO_BE_DETERMINED.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/superluminar-io/serverless-workshop/issues"
+    "url": "https://github.com/superluminar-io/TO_BE_DETERMINED/issues"
   },
-  "homepage": "https://github.com/superluminar-io/serverless-workshop#readme",
+  "homepage": "https://github.com/superluminar-io/TO_BE_DETERMINED#readme",
   "devDependencies": {
     "docsify-cli": "^4.4.4",
     "npm-check-updates": "^16.6.2"

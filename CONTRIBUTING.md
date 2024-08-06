@@ -2,36 +2,53 @@
 
 ## Bug report 🐞
 
-Feel free to open an [issue](https://github.com/superluminar-io/serverless-workshop/issues).
+Feel free to open an [issue](https://github.com/superluminar-io/TO_BE_DETERMINED/issues).
 
 ## Local development setup 🧑‍💻
 
 ```sh
-$ > git clone git@github.com:superluminar-io/serverless-workshop.git
+git clone git@github.com:superluminar-io/TO_BE_DETERMINED.git
+cd aws-fundamentals-workshop
+```
 
-$ > cd serverless-workshop
+Install dependencies
 
-# Install dependencies
-$ > npm install
+```sh
+npm install
+```
 
-# Synth all labs
-$ > npm run synth:all
+Synth all labs
 
-# Lint all labs
-$ > npm run lint:all
+```sh
+npm run synth:all
+```
 
-# Run projen for all labs
-$ > npm run projen:all
+Lint all labs
 
-# Run projen in only one lab
-$ > npm run projen --w lab1
+```sh
+npm run lint:all
+```
 
-# Serve docs
-$ > npm start
+Run projen for all labs
+
+```sh
+npm run projen:all
+```
+
+Run projen in only one lab
+
+```sh
+npm run projen --w lab1
+```
+
+Serve docs
+
+```sh
+npm start
 ```
 
 Open http://localhost:3000.
 
 ## Architecture diagrams
 
-The documentation uses SVGs for architecture diagrams. The best way to edit them is the [Draw.io Integration for VS Code](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio). If you don't use VS Code, you can upload the SVGs to the web interface and download the updated version.
+The documentation uses SVGs for architecture

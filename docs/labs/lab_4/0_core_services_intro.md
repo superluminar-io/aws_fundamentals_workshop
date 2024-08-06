@@ -1,4 +1,4 @@
-# Lab 4: Basic AWS Services
+# Lab 4: Core AWS Services
 
 In this lab, you will gain an understanding of some of the core AWS services, including EC2, S3, and RDS, and learn how to navigate and use the AWS Management Console and Command Line Interface (CLI).
 
