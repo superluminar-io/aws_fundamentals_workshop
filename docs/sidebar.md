@@ -1,8 +1,16 @@
 - [Welcome](/0_welcome)
 - [Core Concepts](/1_core_concepts)
-<!-- - [Lab 1 - REST API](/rest-api)
-- [Lab 2 - Testing](/testing)
-- [Lab 3 - Mini GameDay](/mini-gameday)
-- [Lab 4 - Messaging](/messaging)
-- [Lab 5 - Static Hosting](/static-hosting)
-- [What’s next?](/next) -->
+- Labs
+  - Lab 1
+    - [Intro to CDK](/labs/lab_1/0_cdk_intro)
+    - [Hands On](labs/lab_1/1_setup_project)
+  - Lab 2
+    - [Intro to IAM](labs/lab_2/0_iam_intro)
+    - [Hands On](labs/lab_2/1_hands_on_iam)
+  - Lab 3
+    - [Intro to Networking](/labs/lab_3/0_networking_intro)
+    - [Hands On](labs/lab_3/1_hands_on.md)
+  - Lab 4
+  - Lab 5
+
+<!-- - [What’s next?](/next) -->

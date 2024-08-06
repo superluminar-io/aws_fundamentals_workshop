@@ -1,5 +1,7 @@
 # AWS Basics and Core Services Workshop
 
+![Welcome to AWS Basics and Core Services Workshop](media/welcome.png)
+
 ## Project Overview
 
 The purpose of this workshop is to provide a foundational understanding of AWS services and to guide participants through hands-on labs that will solidify their learning. We will cover essential AWS services, key concepts, and best practices, ensuring that you have the knowledge and skills required to effectively utilize AWS for various projects. The agenda for this workshop follows:
@@ -65,4 +67,4 @@ The purpose of this workshop is to provide a foundational understanding of AWS s
 - **Best practices for RDS performance and cost optimization**
 - **Hands-On: Set up RDS for relational data storage using CDK**
   - Create an RDS instance with CDK
-  - Configure security groups and database parameters
+  - Configure database parameters and settings
