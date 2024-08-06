@@ -1,15 +1,17 @@
 # Lab 5: Amazon RDS
 
-## 2. Hands-On: Set up RDS for Relational Data Storage Using CDK
+## Set up RDS for Relational Data Storage Using CDK
 
 In this hands-on section, you will extend the existing CDK project from the previous labs to create an RDS instance. You will configure security groups and database parameters to set up a secure and optimized relational database.
 
 ## Prerequisites
 
+For this lab, continue with the stack you created in labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: FUTURE_LINK
+
 Ensure you have the necessary dependencies:
 
 ```bash
-npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds
+npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
 ```
 
 ## Create an RDS Instance with CDK
@@ -27,12 +29,13 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds
    import { Construct } from "constructs";
    import * as ec2 from "aws-cdk-lib/aws-ec2";
    import * as rds from "aws-cdk-lib/aws-rds";
+   import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"; // NEW
 
    export class MyCdkAppStack extends cdk.Stack {
      constructor(scope: Construct, id: string, props?: cdk.StackProps) {
        super(scope, id, props);
 
-       // Create a VPC
+       // Existing code to create a VPC and security groups
        const vpc = new ec2.Vpc(this, "MyVpc", {
          maxAzs: 3,
          natGateways: 1,
@@ -50,7 +53,6 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds
          ],
        });
 
-       // Security Group for EC2 instance
        const ec2SecurityGroup = new ec2.SecurityGroup(
          this,
          "EC2SecurityGroup",
@@ -71,7 +73,6 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds
          "Allow HTTP access"
        );
 
-       // Security Group for RDS instance
        const rdsSecurityGroup = new ec2.SecurityGroup(
          this,
          "RDSSecurityGroup",
@@ -86,6 +87,8 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds
          ec2.Port.tcp(3306),
          "Allow MySQL access from EC2 instance"
        );
+
+       // NEW CODE BELOW THIS LINE
 
        // Create an RDS instance
        const rdsInstance = new rds.DatabaseInstance(this, "MyRDSInstance", {
@@ -172,4 +175,4 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds
 - Deploy the stack and verify the RDS instance using the AWS Management Console and CLI.
 - Configure database parameters and option groups to optimize the RDS instance.
 
-By following these steps, you will have successfully set up an RDS instance for relational data storage using AWS CDK, configured security groups, and fine-tuned database parameters to meet your application’s requirements.
+You’ve successfully set up an RDS instance for relational data storage using AWS CDK. This lab completes your journey through creating and managing various AWS services using CDK, equipping you with practical skills for building and managing cloud infrastructure.

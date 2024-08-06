@@ -153,8 +153,4 @@ export class MyCdkAppStack extends cdk.Stack {
    - Navigate to the VPC service and check the VPC, subnets, and route tables.
    - Navigate to the EC2 service and check the security groups.
 
-By following these steps, you will have successfully created and deployed a VPC with subnets, route tables, and configured security groups using AWS CDK. This hands-on exercise provides a practical understanding of managing network infrastructure and security settings programmatically.
-
----
-
-Let me know if you need any further adjustments!
+By following these steps, you now have a fully functional VPC with public and private subnets and appropriate security groups for EC2 and RDS instances. This setup lays the groundwork for further network and security configurations in your AWS environment.

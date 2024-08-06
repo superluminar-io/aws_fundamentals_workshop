@@ -16,10 +16,9 @@ AWS Lambda is a serverless compute service that lets you run code without provis
 
 1. **Set Up Your CDK Project**
 
-   If you haven't already set up your CDK project, ensure you have the necessary dependencies:
+   Install the necessary dependencies with the following commands:
 
    ```bash
-   npm install -g aws-cdk
    npm install @aws-cdk/aws-iam @aws-cdk/aws-lambda @aws-cdk/aws-s3 @aws-cdk/aws-s3-deployment
    ```
 
@@ -159,4 +158,33 @@ AWS Lambda is a serverless compute service that lets you run code without provis
 
    This command will delete the S3 bucket, Lambda function, and IAM roles created by the stack.
 
-By following these steps, you will have successfully created and deployed IAM roles and policies using AWS CDK, demonstrated how permissions impact resource access, and verified the setup with a Lambda function writing to an S3 bucket. This hands-on exercise provides a practical understanding of managing IAM roles and policies programmatically.
+## Reset the Stack for the Next Lab
+
+To ensure the environment is clean for the next lab, follow these steps to delete the stack and clean up your project:
+
+1. **Delete the Stack**:
+   To delete the stack from your AWS account, run the following command from the root directory of your CDK project:
+
+   ```bash
+   cdk destroy
+   ```
+
+   Confirm the deletion when prompted. This command removes all the resources defined in your stack from your AWS account.
+
+2. **Clean Up the Stack File**:
+   Open the stack file in the `lib` directory and remove the code you added. Your stack file should look like this after cleaning up:
+
+   ```typescript
+   import * as cdk from "aws-cdk-lib";
+   import { Construct } from "constructs";
+
+   export class MyCdkAppStack extends cdk.Stack {
+     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+       super(scope, id, props);
+
+       // The stack is empty for the next lab
+     }
+   }
+   ```
+
+Well done! You've navigated through creating and managing IAM roles and policies using AWS CDK, explored how permissions affect resource access, and confirmed the setup by writing a file to an S3 bucket with a Lambda function. Your environment is now prepared for the next lab.

@@ -1,12 +1,12 @@
 # Lab 4: Basic AWS Services
 
-## 2. Hands-On: Deploy Basic Services Using CDK
+## Deploy Basic Services Using CDK
 
 In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2 instance. You will also perform tasks in the AWS Management Console such as checking CloudWatch, adding a bucket policy, and running a CLI command to retrieve the instance ID.
 
 ## Prerequisites
 
-For this and lab 5 we will be continuing with the same stack, and adding services to it. If you don't still have that stack, you can copy the code from here: FUTURE_LINK
+For this and lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: FUTURE_LINK
 
 Ensure you have the necessary dependencies:
 
@@ -14,7 +14,7 @@ Ensure you have the necessary dependencies:
 npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
 ```
 
-## Use CDK to Create an S3 Bucket and an EC2 Instance\*\*
+## Use CDK to Create an S3 Bucket and an EC2 Instance
 
 1. **Open Your CDK Project**
 
@@ -29,6 +29,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
    import { Construct } from "constructs";
    import * as ec2 from "aws-cdk-lib/aws-ec2";
    import * as s3 from "aws-cdk-lib/aws-s3";
+   import * as iam from "aws-cdk-lib/aws-iam";
 
    export class MyCdkAppStack extends cdk.Stack {
      constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -72,8 +73,6 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
          ec2.Port.tcp(80),
          "Allow HTTP access"
        );
-
-       // NEW CODE BELOW THIS LINE
 
        // Create an EC2 instance
        const ec2Instance = new ec2.Instance(this, "MyEC2Instance", {
@@ -171,4 +170,4 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
    }
    ```
 
-By following these steps, you will have successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK, verified their configurations using the AWS Management Console and CLI, and monitored their operation with CloudWatch. This hands-on exercise provides a comprehensive understanding of managing basic AWS services programmatically and through the AWS console.
+Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK. You've also verified their configurations and monitored their operations with CloudWatch. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.

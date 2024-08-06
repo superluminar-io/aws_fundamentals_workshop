@@ -20,7 +20,7 @@ To get started with AWS CDK, you need to install the AWS CDK Toolkit and set up 
    ```bash
    cdk init app --language=<language>
    ```
-   In our workshop we will be using TypeScript:
+   In our workshop, we will be using TypeScript:
    ```bash
    cdk init app --language=typescript
    ```
@@ -89,8 +89,33 @@ After setting up the project and configuring SSO, you can define your first stac
    - Find and select the stack you just deployed.
    - In the stack details, go to the "Outputs" tab to see the output value "Hello, CDK!".
 
-By following these steps, you will have successfully set up your initial project environment using AWS CDK and deployed a basic stack that creates a CloudFormation output. This hands-on exercise provides a foundation for building more complex cloud applications using AWS CDK.
+## Reset the Stack for the Next Lab
 
----
+To ensure the environment is clean for the next lab, follow these steps to delete the stack and clean up your project:
 
-Let me know if you need any further adjustments!
+1. **Delete the Stack**:
+   To delete the stack from your AWS account, run the following command from the root directory of your CDK project:
+
+   ```bash
+   cdk destroy
+   ```
+
+   Confirm the deletion when prompted. This command removes all the resources defined in your stack from your AWS account.
+
+2. **Clean Up the Stack File**:
+   Open the stack file in the `lib` directory and remove the code you added. Your stack file should look like this after cleaning up:
+
+   ```typescript
+   import * as cdk from "aws-cdk-lib";
+   import { Construct } from "constructs";
+
+   export class MyCdkAppStack extends cdk.Stack {
+     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+       super(scope, id, props);
+
+       // The stack is empty for the next lab
+     }
+   }
+   ```
+
+Great work! You've set up your initial project environment using AWS CDK, deployed a basic stack, and cleaned up the environment for the next lab. This process has given you a strong starting point for building more complex cloud applications with AWS CDK.
