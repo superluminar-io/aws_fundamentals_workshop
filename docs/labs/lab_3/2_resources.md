@@ -25,3 +25,21 @@ To dive deeper into the topics covered in Lab 3, here are some helpful resources
 - [Cloud Architecture Patterns](https://www.oreilly.com/library/view/cloud-architecture-patterns/9781449357979/) - Book on common architectural patterns for cloud computing
 
 These resources should provide a solid foundation for further exploration of the topics introduced in Lab 3. Happy learning!
+
+## AWS Systems Manager Session Manager
+
+- [AWS Systems Manager Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) - Official AWS documentation for Session Manager
+- [Setting Up Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started.html) - Step-by-step guide to set up and use Session Manager
+- [Session Manager Security Best Practices](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-security.html) - Security considerations and best practices for Session Manager
+
+## Secure Instance Access
+
+- [AWS Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html) - Another method for secure instance access without SSH keys
+- [Bastion Hosts vs. Session Manager](https://aws.amazon.com/blogs/mt/replacing-a-bastion-host-with-amazon-ec2-systems-manager/) - AWS blog post comparing traditional bastion hosts with Session Manager
+
+## IAM Roles for EC2 Instances
+
+- [IAM Roles for EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) - Understanding and using IAM roles with EC2 instances
+- [AWS Managed Policies for Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html) - Information on the AmazonSSMManagedInstanceCore policy
+
+These additional resources should provide a comprehensive understanding of AWS Systems Manager Session Manager and related topics introduced in the modified Lab 3. They cover the setup, security best practices, and comparisons with alternative approaches for secure instance access.

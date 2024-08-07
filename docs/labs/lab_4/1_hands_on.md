@@ -6,12 +6,12 @@ In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2
 
 ## Prerequisites
 
-For this and lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: FUTURE_LINK
+For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: FUTURE_LINK
 
 Ensure you have the necessary dependencies:
 
 ```bash
-npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
+npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
 ```
 
 ## Use CDK to Create an S3 Bucket and an EC2 Instance
@@ -60,18 +60,24 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
          {
            vpc,
            allowAllOutbound: true,
-           description: "Allow SSH and HTTP access to EC2 instance",
+           description: "Allow HTTP access to EC2 instance",
          }
-       );
-       ec2SecurityGroup.addIngressRule(
-         ec2.Peer.anyIpv4(),
-         ec2.Port.tcp(22),
-         "Allow SSH access"
        );
        ec2SecurityGroup.addIngressRule(
          ec2.Peer.anyIpv4(),
          ec2.Port.tcp(80),
          "Allow HTTP access"
+       );
+
+       // IAM role for EC2 instance to use SSM
+       const role = new iam.Role(this, "SSMRole", {
+         assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
+       });
+
+       role.addManagedPolicy(
+         iam.ManagedPolicy.fromAwsManagedPolicyName(
+           "AmazonSSMManagedInstanceCore"
+         )
        );
 
        // Create an EC2 instance
@@ -81,6 +87,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
          machineImage: ec2.MachineImage.latestAmazonLinux(),
          securityGroup: ec2SecurityGroup,
          vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+         role: role,
        });
 
        // Create an S3 bucket
@@ -112,8 +119,8 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
 ## Explanation of the Code
 
 - **VPC**: Sets up a VPC with public and private subnets and a NAT Gateway.
-- **EC2 Security Group**: Allows SSH (port 22) and HTTP (port 80) access to the EC2 instance.
-- **EC2 Instance**: Creates an EC2 instance in the public subnet with the specified security group.
+- **EC2 Security Group**: Allows HTTP (port 80) access to the EC2 instance.
+- **EC2 Instance**: Creates an EC2 instance in the public subnet with the specified security group and IAM role for SSM access.
 - **S3 Bucket**: Creates an S3 bucket with a destroy policy.
 - **Bucket Policy**: Adds a policy to the S3 bucket allowing public read access.
 - **Outputs**: Outputs the S3 bucket name and EC2 instance ID for verification.
@@ -169,6 +176,23 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3
      ]
    }
    ```
+
+### Connecting to Your EC2 Instance
+
+1. **Open the AWS Systems Manager Console**
+
+   Go to the AWS Management Console and navigate to the Systems Manager service.
+
+2. **Navigate to Session Manager**
+
+   In the Systems Manager console, look for Session Manager in the left navigation pane under the "Instances & Nodes" section.
+
+3. **Start a Session**
+
+   - Select the instance you want to connect to from the list of managed instances.
+   - Click the "Start session" button.
+
+   This will open a browser-based shell session to your instance, allowing you to manage it without needing an SSH connection.
 
 ## EC2 Instance Management Best Practices
 

@@ -2,19 +2,11 @@
   "name": "aws-fundamentals-workshop",
   "version": "1.0.0",
   "description": "Hands-on AWS fundamentals workshop for beginners",
-  "workspaces": [
-    "packages/*"
-  ],
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "start": "docsify serve ./docs",
-    "test:all": "npm run test --workspaces",
-    "projen:all": "npm run projen --workspaces",
-    "synth:all": "npm run synth --workspaces",
-    "lint:all": "npm run eslint --workspaces",
-    "upgrade:all": "npm-check-updates --deep -u && npm install && npm run install:frontend && npm run projen:all"
+    "start": "docsify serve ./docs"
   },
   "repository": {
     "type": "git",
@@ -28,7 +20,6 @@
   },
   "homepage": "https://github.com/superluminar-io/TO_BE_DETERMINED#readme",
   "devDependencies": {
-    "docsify-cli": "^4.4.4",
-    "npm-check-updates": "^16.6.2"
+    "docsify-cli": "^4.4.4"
   }
 }

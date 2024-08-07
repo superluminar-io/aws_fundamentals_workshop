@@ -42,7 +42,7 @@ By leveraging these advantages, AWS empowers organizations to innovate faster, r
 
 ## 2. Global AWS Infrastructure
 
-![AWS Global Infrastructure](media/aws-global-infra.png)
+![AWS Global Infrastructure](media/aws_global_infra.png)
 
 **Detailed Look at AWS Regions and Availability Zones**
 

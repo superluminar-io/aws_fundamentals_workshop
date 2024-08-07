@@ -6,6 +6,62 @@
 
 The purpose of this workshop is to provide a foundational understanding of AWS services and to guide participants through hands-on labs that will solidify their learning. We will cover essential AWS services, key concepts, and best practices, ensuring that you have the knowledge and skills required to effectively utilize AWS for various projects. The agenda for this workshop follows:
 
+## Workshop Architecture Evolution
+
+Throughout this workshop, we'll build our architecture in stages:
+
+1. **Initial Setup**: A basic CDK project with a CloudFormation output.
+
+   ![Initial Setup](media/initial_setup.png)
+   Like this: [CDK Code] -> [CDK Synthesis] -> [CloudFormation Template] -> [CloudFormation Stack] -> [Stack Output]
+
+2. **IAM Basics**: A simple example using Lambda and S3 to explore IAM concepts.
+
+   ![Intermediate Architecture](media/intermediate_arch.drawio.svg)
+
+3. **Final Architecture (Labs 3-5)**: A complete setup incorporating networking, core services, and database.
+
+   ![Final Architecture](media/final_architecture.png)
+   Like this:
+
+   ```sh
+   -------------------------------
+   |            VPC              |
+   |        (10.0.0.0/16)        |
+   |                             |
+   |  ----------------------     |
+   |  | Public Subnet     |      |
+   |  | (10.0.1.0/24)     |      |
+   |  |                   |      |
+   |  |  EC2 Instance     |      |
+   |  |  (HTTP access)    |      |
+   |  |                   |      |
+   |  |  NAT Gateway      |      |
+   |  ----------------------     |
+   |          |                  |
+   |          v                  |
+   |  ----------------------     |
+   |  | Private Subnet    |      |
+   |  | (10.0.2.0/24)     |      |
+   |  |                   |      |
+   |  |  RDS Instance     |      |
+   |  |  (MySQL access    |      |
+   |  |   from EC2 SG)    |      |
+   |  ----------------------     |
+   |                             |
+   -------------------------------
+    |           |
+    |           |
+   Internet     |
+   Gateway      |
+                |
+   NAT Gateway  |
+                |
+   Session Manager (Admin)
+   ```
+
+These diagrams illustrate how our project will evolve as we progress through the labs.
+
 ### Core Concepts
 
 #### 1. Overview of AWS
@@ -32,8 +88,8 @@ The purpose of this workshop is to provide a foundational understanding of AWS s
 - **Setting up the AWS CDK environment**
 - **Basic concepts: stacks, constructs, and apps**
 - **Hands-On: Set up the initial project environment using CDK**
-  - Install AWS CDK and set up a new CDK project
-  - Create a basic stack
+- Install AWS CDK and set up a new CDK project
+- Create a basic stack
 
 #### 2. Identity and Access Management (IAM)
 
@@ -41,7 +97,7 @@ The purpose of this workshop is to provide a foundational understanding of AWS s
 - **More details on IAM best practices and security implications**
 - **Best practices for managing IAM**
 - **Hands-On: Set up IAM roles and policies using CDK**
-  - Create IAM roles and policies
+- Create IAM roles and policies
 
 #### 3. Networking and Security Groups
 
@@ -49,15 +105,15 @@ The purpose of this workshop is to provide a foundational understanding of AWS s
 - **Setting up a VPC for the project using CDK**
 - **Configuring security groups and network ACLs**
 - **Hands-On: Set up VPC and security groups using CDK**
-  - Define a VPC with subnets and route tables
-  - Configure security groups for the EC2 and RDS instances
+- Define a VPC with subnets and route tables
+- Configure security groups for the EC2 and RDS instances
 
 #### 4. Basic AWS Services
 
 - **Introduction to core services (EC2, S3, RDS, etc.)**
 - **Understanding the AWS Management Console and CLI**
 - **Hands-On: Deploy basic services using CDK**
-  - Use CDK to create an S3 bucket and an EC2 instance
+- Use CDK to create an S3 bucket and an EC2 instance
 
 #### 5. Amazon RDS
 
@@ -66,8 +122,8 @@ The purpose of this workshop is to provide a foundational understanding of AWS s
 - **Configuring and managing RDS instances**
 - **Best practices for RDS performance and cost optimization**
 - **Hands-On: Set up RDS for relational data storage using CDK**
-  - Create an RDS instance with CDK
-  - Configure database parameters and settings
+- Create an RDS instance with CDK
+- Configure database parameters and settings
 
 ## Prerequisites
 
@@ -84,3 +140,7 @@ Total estimated time: 4-5 hours
 - Lab 3: 1 hour
 - Lab 4: 1 hour
 - Lab 5: 1 hour
+
+```
+
+```

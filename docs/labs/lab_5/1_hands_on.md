@@ -6,7 +6,7 @@ In this hands-on section, you will extend the existing CDK project from the prev
 
 ## Prerequisites
 
-For this lab, continue with the stack you created in labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: FUTURE_LINK
+For this lab, continue with the stack you created in Labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: FUTURE_LINK
 
 Ensure you have the necessary dependencies:
 
@@ -29,7 +29,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
    import { Construct } from "constructs";
    import * as ec2 from "aws-cdk-lib/aws-ec2";
    import * as rds from "aws-cdk-lib/aws-rds";
-   import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager"; // NEW
+   import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
    export class MyCdkAppStack extends cdk.Stack {
      constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -53,19 +53,15 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
          ],
        });
 
+       // Security Group for EC2 instance
        const ec2SecurityGroup = new ec2.SecurityGroup(
          this,
          "EC2SecurityGroup",
          {
            vpc,
            allowAllOutbound: true,
-           description: "Allow SSH and HTTP access to EC2 instance",
+           description: "Allow HTTP access to EC2 instance",
          }
-       );
-       ec2SecurityGroup.addIngressRule(
-         ec2.Peer.anyIpv4(),
-         ec2.Port.tcp(22),
-         "Allow SSH access"
        );
        ec2SecurityGroup.addIngressRule(
          ec2.Peer.anyIpv4(),
@@ -73,6 +69,28 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
          "Allow HTTP access"
        );
 
+       // IAM role for EC2 instance to use SSM
+       const role = new iam.Role(this, "SSMRole", {
+         assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
+       });
+
+       role.addManagedPolicy(
+         iam.ManagedPolicy.fromAwsManagedPolicyName(
+           "AmazonSSMManagedInstanceCore"
+         )
+       );
+
+       // Create an EC2 instance
+       new ec2.Instance(this, "MyEC2Instance", {
+         vpc,
+         instanceType: new ec2.InstanceType("t2.micro"),
+         machineImage: ec2.MachineImage.latestAmazonLinux(),
+         securityGroup: ec2SecurityGroup,
+         vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
+         role: role,
+       });
+
+       // Security Group for RDS instance
        const rdsSecurityGroup = new ec2.SecurityGroup(
          this,
          "RDSSecurityGroup",
@@ -87,8 +105,6 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
          ec2.Port.tcp(3306),
          "Allow MySQL access from EC2 instance"
        );
-
-       // NEW CODE BELOW THIS LINE
 
        // Create an RDS instance
        const rdsInstance = new rds.DatabaseInstance(this, "MyRDSInstance", {
@@ -132,13 +148,13 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
    }
    ```
 
-   ## Explanation of the Code
+## Explanation of the Code
 
-   - **VPC**: Sets up a VPC with public and private subnets and a NAT Gateway.
-   - **EC2 Security Group**: Allows SSH (port 22) and HTTP (port 80) access to the EC2 instance.
-   - **RDS Security Group**: Allows MySQL (port 3306) access from the EC2 security group.
-   - **RDS Instance**: Creates an RDS MySQL instance in the private subnet with generated credentials stored in AWS Secrets Manager.
-   - **Outputs**: Outputs the RDS instance endpoint, secret ARN, and security group IDs for verification.
+- **VPC**: Sets up a VPC with public and private subnets and a NAT Gateway.
+- **EC2 Security Group**: Allows HTTP (port 80) access to the EC2 instance.
+- **RDS Security Group**: Allows MySQL (port 3306) access from the EC2 security group.
+- **RDS Instance**: Creates an RDS MySQL instance in the private subnet with generated credentials stored in AWS Secrets Manager.
+- **Outputs**: Outputs the RDS instance endpoint, secret ARN, and security group IDs for verification.
 
 3. **Deploy the Stack**
 
