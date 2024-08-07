@@ -191,7 +191,7 @@ This setup creates a complete environment with both compute (EC2) and database (
    To deploy the stack to your AWS account, run the following command from the root directory of your CDK project:
 
    ```bash
-   cdk deploy
+   cdk deploy --profile PROFILE_NAME
    ```
 
    This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and RDS instance in your account.
@@ -206,7 +206,7 @@ This setup creates a complete environment with both compute (EC2) and database (
    - **AWS CLI**:
      Run the following command to retrieve the RDS instance details:
      ```bash
-     aws rds describe-db-instances --db-instance-identifier MyRDSInstance --query "DBInstances[*].[DBInstanceIdentifier,DBInstanceStatus,Endpoint.Address]" --output table
+     aws rds describe-db-instances --db-instance-identifier MyRDSInstance --query "DBInstances[*].[DBInstanceIdentifier,DBInstanceStatus,Endpoint.Address]" --output table  --profile PROFILE_NAME
      ```
 
 5. **Configure Database Parameters**
@@ -256,13 +256,13 @@ If you're encountering issues, check the following:
 
    - Create a manual snapshot before major changes:
      ```bash
-     aws rds create-db-snapshot --db-instance-identifier my-database --db-snapshot-identifier my-snapshot
+     aws rds create-db-snapshot --db-instance-identifier my-database --db-snapshot-identifier my-snapshot --profile PROFILE_NAME
      ```
 
 3. Restore from Snapshot:
    - To restore from a snapshot, use the AWS Management Console or AWS CLI:
      ```bash
-     aws rds restore-db-instance-from-db-snapshot --db-instance-identifier my-new-database --db-snapshot-identifier my-snapshot
+     aws rds restore-db-instance-from-db-snapshot --db-instance-identifier my-new-database --db-snapshot-identifier my-snapshot --profile PROFILE_NAME
      ```
 
 ## RDS Encryption Options

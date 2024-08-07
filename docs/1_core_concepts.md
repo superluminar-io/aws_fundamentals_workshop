@@ -106,7 +106,7 @@ AWS offers several pricing models:
 
 - Pay-as-you-go: Pay only for the resources you use, with no long-term commitments.
 - Savings Plans: Commit to a consistent amount of usage for a 1 or 3 year term in exchange for lower prices.
-- Reserved Instances: Pre-pay for EC2 instances to receive significant discounts.
-- Spot Instances: Bid on spare EC2 computing capacity for up to 90% off the on-demand price.
+- Reserved Instances: Pre-pay for compute capacity (e.g., EC2 instances, RDS instances) to receive significant discounts on long-term commitments.
+- Spot Instances: Take advantage of unused EC2 capacity in the AWS cloud for up to 90% off the On-Demand price. Spot Instance prices are set by Amazon EC2 and adjust gradually based on long-term trends in supply and demand for Spot Instance capacity.
 
 Always check the pricing page for each AWS service before using it in production.

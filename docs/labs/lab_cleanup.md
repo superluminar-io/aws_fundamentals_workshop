@@ -19,7 +19,7 @@ The simplest way to delete all resources created by your CDK stack is to destroy
    Run the following command to destroy the stack:
 
    ```bash
-   cdk destroy
+   cdk destroy --profile PROFILE_NAME
    ```
 
    Confirm the deletion when prompted. This will delete all resources created by the stack, including the VPC, subnets, security groups, EC2 instance, S3 bucket, and RDS instance.
@@ -42,7 +42,7 @@ Run the following commands to verify the deletion of resources:
 - **EC2 Instance**:
 
   ```bash
-  aws ec2 describe-instances --filters "Name=tag:Name,Values=MyEC2Instance" --query "Reservations[*].Instances[*].InstanceId" --output table
+  aws ec2 describe-instances --filters "Name=tag:Name,Values=MyEC2Instance" --query "Reservations[*].Instances[*].InstanceId" --output table --profile PROFILE_NAME
   ```
 
   Ensure no instances are listed.
@@ -50,7 +50,7 @@ Run the following commands to verify the deletion of resources:
 - **S3 Bucket**:
 
   ```bash
-  aws s3 ls
+  aws s3 ls --profile PROFILE_NAME
   ```
 
   Ensure the bucket is not listed.
@@ -58,14 +58,14 @@ Run the following commands to verify the deletion of resources:
 - **RDS Instance**:
 
   ```bash
-  aws rds describe-db-instances --query "DBInstances[*].[DBInstanceIdentifier,DBInstanceStatus]" --output table
+  aws rds describe-db-instances --query "DBInstances[*].[DBInstanceIdentifier,DBInstanceStatus]" --output table --profile PROFILE_NAME
   ```
 
   Ensure the instance is not listed.
 
 - **VPC**:
   ```bash
-  aws ec2 describe-vpcs --query "Vpcs[*].[VpcId,State,Tags]" --output table
+  aws ec2 describe-vpcs --query "Vpcs[*].[VpcId,State,Tags]" --output table --profile PROFILE_NAME
   ```
   Ensure the VPC is not listed.
 
@@ -80,11 +80,11 @@ If you have generated secrets in AWS Secrets Manager, ensure they are also delet
 
 - **AWS CLI**:
   ```bash
-  aws secretsmanager list-secrets --query "SecretList[*].[Name,ARN]" --output table
+  aws secretsmanager list-secrets --query "SecretList[*].[Name,ARN]" --output table --profile PROFILE_NAME
   ```
   Identify and delete the secrets:
   ```bash
-  aws secretsmanager delete-secret --secret-id <secret-arn> --force-delete-without-recovery
+  aws secretsmanager delete-secret --secret-id SECRET_ARN --force-delete-without-recovery --profile PROFILE_NAME
   ```
 
 ### 4. Check for Remaining Resources (Recommended)

@@ -133,7 +133,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
    To deploy the stack to your AWS account, run the following command from the root directory of your CDK project:
 
    ```bash
-   cdk deploy
+   cdk deploy --profile PROFILE_NAME
    ```
 
    This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, EC2 instance, and S3 bucket in your account.
@@ -148,7 +148,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
    - **AWS CLI**:
      Run the following command to retrieve the instance ID:
      ```bash
-     aws ec2 describe-instances --filters "Name=tag:Name,Values=MyEC2Instance" --query "Reservations[*].Instances[*].InstanceId" --output text
+     aws ec2 describe-instances --filters "Name=tag:Name,Values=MyEC2Instance" --query "Reservations[*].Instances[*].InstanceId" --output text --profile PROFILE_NAME
      ```
 
 5. **Check CloudWatch**

@@ -273,7 +273,7 @@ CDK creates these components automatically based on our configuration, simplifyi
 To deploy the stack to your AWS account, run the following command from the root directory of your CDK project:
 
 ```bash
-cdk deploy
+cdk deploy --profile PROFILE_NAME
 ```
 
 This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and EC2 instance with the IAM role for Systems Manager access.

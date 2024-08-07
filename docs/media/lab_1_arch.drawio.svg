@@ -1,4 +1,4 @@
-<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="781px" height="81px" viewBox="-0.5 -0.5 781 81" content="&lt;mxfile&gt;&lt;diagram id=&quot;KzEHH9f9-nyIDoJquqCH&quot; name=&quot;Page-1&quot;&gt;7Zddj5QwFIZ/DbeGwjDMXCrsrokxmmCiXjZwhGYLJaUs4K+3SMtXQSd+LDd7M0Pf9pT2eU97guUGefvAcZm9ZwlQy7GT1nJDy3GuJ0f+9kI3CAhd/EFJOUmUNgkR+Q5KtJVakwSqxUDBGBWkXIoxKwqIxULDnLNmOewbo8u3ljgFQ4hiTE31M0lENqgXz570t0DSTL8Z2aonx3qwEqoMJ6yZSe6d5QacMTE85W0AtIenuQxx9zu948I4FOKWgMsQ8IRprfYWhO+kEEjP1ApFp7fNWV0k0Eciy33TZERAVOK4722k0VLLRE5Vt5oYuIB2d3Fo3LLMFWA5CN7JISrgpCCpNPE0tGZijrSWzXiflYaVzek480RCPigY22CuO2CirhAZVKQy6Mh4mX/wLGQce4UG3Yjm8g/QIGSyoaxO7hmX+U1YIfs+QV5SLI7PIffsHZdEyPk9qUjg+FH+h1BS1h2aVZ57ZFa5BiuN5kMtylocnkr++tA9ayqdDDxmrhTJ6766yVZMcVWReIsBJEZxWxGQk7Kax7AoEQLzFMTscjQ5zTh4Gxi0xkHeDORpuYgtNuoNHxmRy5tVhaUNZ2eFd1i8iprXvvVE3spPfzXRsGVjop9Wjdu+zT3v792THvHui2zYuvG1b7zydDNs551hp1p/5vrVdB3tHI8X23dtPx91aHWNXvjnHOmfUVzWt+Kt/o1VSU3ko//nn3+Yf86Gf+7L+fulf7I5fTkNw6fvT/fuBw==&lt;/diagram&gt;&lt;/mxfile&gt;">
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="781px" height="81px" viewBox="-0.5 -0.5 781 81" content="&lt;mxfile&gt;&lt;diagram id=&quot;KzEHH9f9-nyIDoJquqCH&quot; name=&quot;Page-1&quot;&gt;3ZfBjpswEIafhjvGIaTHlmy2UlW1Uir1bMEUrDUYGRNCn74m2AHjpEVVd9ktF+D3jBl/M3jAw3FxfhSkyj/zFJgX+OnZw3svCBDeBOrUK51W0C4alEzQVGujcKQ/QYu+VhuaQm0ZSs6ZpJUtJrwsIZGWRoTgrW32gzP7qRXJwBGOCWGu+p2mMh/UXeiP+kegWW6ejHw9UhBjrIU6JylvJxJ+8HAsOJfDVXGOgfX0DJfB73Bn9BqYgFIucdgNDifCGr22eP9JCbFKmo5QdmbZgjdlCr0n8vCHNqcSjhVJ+tFWZVppuSyYHnYj0cGdQEg4TyQd2SPwAqTolIke3WhIukxCA60dmSOj5RPeW60RnebsOvNIQl1oGLfBvLsD5tiVMoea1g4d5a/qD16ETODP0KCFaHb/AA1CLhvGm/TAhapvyks19g2KihG5fg3hbbheEaHgz6SOkiRP6ryHivFu1aoK8ZpVhR1WBs2XRlaNXL2UovlL96KltHHwuLVSpu/77qbuEkbqmiY2g1oK/gQxZ1xcHPDhcvyOTs0bkYDVKyQRGUhrl4TU6pcuwQmh8AYgowlQewY92V32FjX9hK+cqngn/cJO0DaYgR9Wo72mXXE+UTjLdDSbaGDgTHRJ4nXZy/Iarp7X/zSJzs4fLkuiQk26iVnVG9T3A8bzz5TQ+uRSF8OMf10h29UrxHT86atvetsrKRund8033aVlc216eqIIPd+7H62f2eBGZvGryuwb2NXV7fjLNpiPf7744Rc=&lt;/diagram&gt;&lt;/mxfile&gt;">
     <defs/>
     <g>
         <rect x="0" y="10" width="120" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
@@ -86,14 +86,14 @@
                 </text>
             </switch>
         </g>
-        <path d="M 120 40 L 153.63 40" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
-        <path d="M 158.88 40 L 151.88 43.5 L 153.63 40 L 151.88 36.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
-        <path d="M 280 40 L 318.63 40" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
-        <path d="M 323.88 40 L 316.88 43.5 L 318.63 40 L 316.88 36.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
-        <path d="M 445 40 L 483.63 40" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
-        <path d="M 488.88 40 L 481.88 43.5 L 483.63 40 L 481.88 36.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
-        <path d="M 610 40 L 653.63 40" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
-        <path d="M 658.88 40 L 651.88 43.5 L 653.63 40 L 651.88 36.5 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 120 40 L 153.63 40" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 158.88 40 L 151.88 43.5 L 153.63 40 L 151.88 36.5 Z" fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 280 40 L 290 40 Q 300 40 309.32 40 L 318.63 40" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 323.88 40 L 316.88 43.5 L 318.63 40 L 316.88 36.5 Z" fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 445 40 L 483.63 40" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 488.88 40 L 481.88 43.5 L 483.63 40 L 481.88 36.5 Z" fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 610 40 L 653.63 40" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 658.88 40 L 651.88 43.5 L 653.63 40 L 651.88 36.5 Z" fill="#ffffff" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
     </g>
     <switch>
         <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>

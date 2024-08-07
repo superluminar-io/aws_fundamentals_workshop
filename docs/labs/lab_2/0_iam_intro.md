@@ -24,41 +24,41 @@ Let's consider a scenario where an EC2 instance needs to read objects from an S3
 
    Define a trust policy that allows EC2 instances to assume this role:
 
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Principal": {
-           "Service": "ec2.amazonaws.com"
-         },
-         "Action": "sts:AssumeRole"
-       }
-     ]
-   }
-   ```
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
 
-   This trust policy specifies that the EC2 service can assume the role.
+This trust policy specifies that the EC2 service can assume the role.
 
 2. **Attach a Policy to the Role**
 
    Attach a policy to the role that grants permission to read objects from a specific S3 bucket:
 
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Action": "s3:GetObject",
-         "Resource": "arn:aws:s3:::example-bucket/*"
-       }
-     ]
-   }
-   ```
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::example-bucket/*"
+    }
+  ]
+}
+```
 
-   This policy grants read-only access to all objects within the `example-bucket` S3 bucket.
+This policy grants read-only access to all objects within the `example-bucket` S3 bucket.
 
 3. **Assign the Role to an EC2 Instance**
 
@@ -106,37 +106,39 @@ Here's the policy:
 
 1. **General Read-Only Access to All S3 Buckets**:
 
-   ```json
-   {
-     "Effect": "Allow",
-     "Action": ["s3:GetObject", "s3:ListBucket"],
-     "Resource": ["arn:aws:s3:::*"]
-   }
-   ```
-
    This statement allows the user to list and read objects from any S3 bucket.
 
-2. **Full Access to Specific S3 Bucket**:
+```json
+{
+  "Effect": "Allow",
+  "Action": ["s3:GetObject", "s3:ListBucket"],
+  "Resource": ["arn:aws:s3:::*"]
+}
+```
 
-   ```json
-   {
-     "Effect": "Allow",
-     "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
-     "Resource": "arn:aws:s3:::example-bucket/*"
-   }
-   ```
+1. **Full Access to Specific S3 Bucket**:
 
    This statement grants full access (read, write, delete) to all objects within the `example-bucket`.
 
-3. **Explicit Deny for Deleting Objects in Another Bucket**:
-   ```json
-   {
-     "Effect": "Deny",
-     "Action": "s3:DeleteObject",
-     "Resource": "arn:aws:s3:::restricted-bucket/*"
-   }
-   ```
+```json
+{
+  "Effect": "Allow",
+  "Action": ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"],
+  "Resource": "arn:aws:s3:::example-bucket/*"
+}
+```
+
+1. **Explicit Deny for Deleting Objects in Another Bucket**:
+
    This statement explicitly denies the ability to delete objects in the `restricted-bucket`, regardless of any other permissions that might allow it.
+
+```json
+{
+  "Effect": "Deny",
+  "Action": "s3:DeleteObject",
+  "Resource": "arn:aws:s3:::restricted-bucket/*"
+}
+```
 
 ## Order of Evaluation
 
@@ -197,12 +199,20 @@ IAM policies can use variables to make them more flexible. For example:
     {
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "${bucket_name}"
+      "Resource": "arn:aws:s3:::${aws:username}-bucket"
     }
   ]
 }
 ```
 
-By using the `${bucket_name}` variable, you can easily update the policy to apply to different buckets without having to create a new policy.
+This policy allows each user to list only their own personal S3 bucket. Here's an example of how you might use this in practice:
+
+1. **Create personal buckets**: For each IAM user, create an S3 bucket named after their username (e.g., "john-doe-bucket" for user "john-doe").
+
+2. **Apply the policy**: Attach this policy to the IAM users or to a group that contains these users.
+
+3. **Result**: Each user will only be able to list the contents of their own bucket.
+
+You can extend this concept further. For example, to allow users to read and write to their personal buckets:
 
 By understanding these detailed aspects of IAM, including how policies are structured, the order of evaluation, and how to troubleshoot permissions issues, you can better secure and manage access to your AWS resources.
