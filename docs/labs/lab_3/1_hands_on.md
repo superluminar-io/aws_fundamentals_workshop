@@ -278,6 +278,14 @@ cdk deploy
 
 This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and EC2 instance with the IAM role for Systems Manager access.
 
+## Best Practices and Security Considerations
+
+1. Use VPC Flow Logs to monitor and troubleshoot connectivity issues.
+2. Implement network segmentation using subnets and security groups.
+3. Use NAT Gateways or NAT Instances for outbound internet connectivity from private subnets.
+4. Regularly review and audit your security group rules.
+5. Use VPC endpoints to privately connect your VPC to supported AWS services.
+
 ## Verify the Deployment
 
 To verify the deployment:

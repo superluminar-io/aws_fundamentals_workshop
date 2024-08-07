@@ -232,6 +232,14 @@ If you're encountering issues, check the following:
 - Make sure the EC2 instance has the necessary permissions to access Secrets Manager
 - Verify that you can resolve the RDS endpoint from the EC2 instance
 
+## Best Practices and Security Considerations
+
+1. Enable encryption at rest for your RDS instances.
+2. Use SSL/TLS to encrypt connections to your RDS instance.
+3. Regularly back up your databases and test the restore process.
+4. Use Multi-AZ deployments for high availability and failover support.
+5. Implement performance insights to monitor database performance.
+
 ## RDS Backup and Restore Procedures
 
 1. Automated Backups:

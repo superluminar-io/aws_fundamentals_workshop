@@ -132,6 +132,14 @@ If you're encountering issues, check the following:
 - Check that your AWS credentials are properly configured
 - Make sure you have the necessary permissions to create CloudFormation stacks
 
+## Best Practices and Security Considerations
+
+1. Use IAM roles instead of storing AWS credentials on EC2 instances.
+2. Regularly update your CDK version to benefit from the latest features and security improvements.
+3. Use version control (like Git) to track changes to your CDK code.
+4. Implement the principle of least privilege when defining IAM roles and policies.
+5. Use CDK's built-in security checks to identify potential security issues in your infrastructure.
+
 ## Reset the Stack for the Next Lab
 
 To ensure the environment is clean for the next lab, follow these steps to delete the stack and clean up your project:

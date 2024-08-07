@@ -24,3 +24,4 @@
   - [Clean Up](labs/lab_cleanup)
 - [Next Steps](2_next)
 - [Conclusion](3_conclusion)
+- [Glossary](4_glossary)

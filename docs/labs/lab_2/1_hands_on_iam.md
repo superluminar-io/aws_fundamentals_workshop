@@ -187,15 +187,13 @@ We'll start by creating these resources with incorrect permissions, then we'll f
    - Navigate to the S3 service and find the bucket created by the stack.
    - Check the bucket contents for a file named `hello.txt` with the content "Hello World".
 
-7. **Tear Down the Resources**
+## Best Practices and Security Considerations
 
-   To clean up and delete the resources created by this stack, run:
-
-   ```bash
-   cdk destroy
-   ```
-
-   This command will delete the S3 bucket, Lambda function, and IAM roles created by the stack.
+1. Follow the principle of least privilege when assigning permissions.
+2. Use IAM roles for applications running on EC2 instances instead of IAM users.
+3. Regularly rotate IAM access keys and require strong passwords.
+4. Enable multi-factor authentication (MFA) for all IAM users, especially those with elevated privileges.
+5. Use IAM Access Analyzer to identify resources in your organization that are shared with external entities.
 
 ## Checkpoint
 
