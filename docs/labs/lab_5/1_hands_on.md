@@ -30,6 +30,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
    import * as ec2 from "aws-cdk-lib/aws-ec2";
    import * as rds from "aws-cdk-lib/aws-rds";
    import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+   import * as iam from "aws-cdk-lib/aws-iam";
 
    export class MyCdkAppStack extends cdk.Stack {
      constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -148,13 +149,42 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
    }
    ```
 
+## Lab Architecture
+
+Before we proceed with verifying the deployment, let's take a moment to review the architecture we've built in this lab:
+
+![Database Lab Architecture](media/lab_5_arch.drawio.svg)
+
+This diagram illustrates the key components of our lab:
+
+1. A Virtual Private Cloud (VPC) with public and private subnets spread across multiple Availability Zones, which we set up in previous labs.
+2. An EC2 instance launched in the public subnet, which we can connect to using Systems Manager Session Manager.
+3. An RDS MySQL instance deployed in a private subnet, providing a managed relational database service.
+4. Security groups controlling inbound and outbound traffic for both our EC2 instance and RDS instance.
+5. A NAT Gateway allowing the RDS instance in the private subnet to access the internet for updates and patches.
+6. AWS Secrets Manager storing the credentials for the RDS instance, enhancing security.
+
+This architecture demonstrates a secure and scalable setup for integrating compute and database resources:
+
+- The EC2 instance in the public subnet can be accessed for management purposes and could host an application.
+- The RDS instance is protected in a private subnet, not directly accessible from the internet.
+- The security group rules allow the EC2 instance to communicate with the RDS instance on the MySQL port (3306).
+- By using Secrets Manager, we avoid hardcoding database credentials and can rotate them easily.
+
+This setup provides a solid foundation for building applications that require both compute power and a relational database, while maintaining proper security controls and following AWS best practices.
+
 ## Explanation of the Code
 
 - **VPC**: Sets up a VPC with public and private subnets and a NAT Gateway.
 - **EC2 Security Group**: Allows HTTP (port 80) access to the EC2 instance.
+- **IAM Role**: Creates an IAM role for the EC2 instance to use Systems Manager (SSM).
+- **EC2 Instance**: Launches an EC2 instance in the public subnet with the SSM role attached.
 - **RDS Security Group**: Allows MySQL (port 3306) access from the EC2 security group.
 - **RDS Instance**: Creates an RDS MySQL instance in the private subnet with generated credentials stored in AWS Secrets Manager.
+  - Configures various parameters like instance type, storage, backups, and database name.
 - **Outputs**: Outputs the RDS instance endpoint, secret ARN, and security group IDs for verification.
+
+This setup creates a complete environment with both compute (EC2) and database (RDS) resources, properly secured within a VPC structure.
 
 3. **Deploy the Stack**
 
@@ -183,6 +213,24 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-rds @aws-cdk/aws-secretsmanager
 
    - **Parameter Groups**: In the AWS Management Console, navigate to the RDS service, select your database instance, and configure the parameter group to fine-tune database settings.
    - **Option Groups**: Add necessary options to your RDS instance using option groups, such as enabling performance insights or additional monitoring tools.
+
+## Checkpoint
+
+At this point, you should have:
+
+- Created an RDS instance in the private subnet
+- Configured the database security group
+- Set up a secret in AWS Secrets Manager for database credentials
+- Modified the EC2 instance to allow communication with the RDS instance
+- Successfully connected to the RDS instance from the EC2 instance
+
+If you're encountering issues, check the following:
+
+- Ensure the RDS instance is in the correct subnet group
+- Verify that the security group allows traffic from the EC2 instance to the RDS instance
+- Check that the secret in Secrets Manager is correctly formatted
+- Make sure the EC2 instance has the necessary permissions to access Secrets Manager
+- Verify that you can resolve the RDS endpoint from the EC2 instance
 
 ## RDS Backup and Restore Procedures
 

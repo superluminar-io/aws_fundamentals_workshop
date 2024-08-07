@@ -15,7 +15,7 @@ Let's recap what you've accomplished:
    - Relational Database Service (RDS)
    - Virtual Private Cloud (VPC) and Networking
 
-2. You've learned about Infrastructure as Code (IaC) using the AWS Cloud Development Kit (CDK), and used it to deploy your resources throughout the workshop.
+2. You've learned about Infrastructure as Code (IaC) using the AWS Cloud Development Kit (CDK), and applied it to deploy resources throughout the workshop.
 
 3. You've practiced using the AWS Management Console, AWS CLI, and programmatic tools to interact with AWS services.
 
@@ -23,15 +23,21 @@ Let's recap what you've accomplished:
 
 5. You've been introduced to key concepts in cloud architecture and design, with a particular focus on networking and VPC configuration.
 
-6. While you didn't work hands-on with Aurora, you've learned about its capabilities as an advanced database option within the AWS ecosystem.
+6. You've learned about Amazon Aurora's capabilities as an advanced database option within the AWS ecosystem, even though you didn't work with it hands-on.
 
-This workshop has provided you with a solid foundation in AWS, but remember that cloud computing is a vast and rapidly evolving field. Here are some suggestions for continuing your AWS journey:
+This workshop has provided you with a solid foundation in AWS. Remember that cloud computing is a vast and rapidly evolving field. Here are some suggestions for continuing your AWS journey:
 
 - Review the additional resources provided at the end of each lab to deepen your understanding of specific topics.
-- Practice what you've learned by working on personal projects or contributing to work-related AWS initiatives, particularly focusing on CDK deployments and network architecture.
+- Apply what you've learned by working on personal projects or contributing to work-related AWS initiatives, particularly focusing on CDK deployments and network architecture.
 - Consider pursuing AWS certifications to validate your skills and knowledge.
 - Stay updated with the latest AWS developments by following AWS blogs, attending webinars, and participating in AWS events.
-- Dive deeper into advanced services like Aurora, which you've learned about conceptually in this workshop.
+- Explore advanced services like Aurora in more depth, building on the conceptual knowledge you've gained in this workshop.
+
+## Join the AWS Community
+
+- [AWS Forums](https://forums.aws.amazon.com/)
+- [AWS re:Post](https://repost.aws/)
+- [AWS User Groups](https://aws.amazon.com/developer/community/usergroups/)
 
 Remember, the key to mastering AWS is continuous learning and hands-on practice. As you apply these skills in real-world scenarios, you'll gain confidence and expertise in leveraging the power of the cloud.
 

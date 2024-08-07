@@ -22,11 +22,13 @@ To dive deeper into the topics covered in Lab 4, here are some helpful resources
 
 ## AWS CLI for S3 and EC2
 
+- [AWS CLI Command Reference](https://awscli.amazonaws.com/v2/documentation/api/latest/index.html) - Complete reference for all AWS CLI commands
 - [AWS CLI S3 Commands](https://docs.aws.amazon.com/cli/latest/reference/s3/index.html) - Reference for S3-related AWS CLI commands
 - [AWS CLI EC2 Commands](https://docs.aws.amazon.com/cli/latest/reference/ec2/index.html) - Reference for EC2-related AWS CLI commands
 
 ## AWS CDK with S3 and EC2
 
+- [AWS CDK Developer Guide](https://docs.aws.amazon.com/cdk/v2/guide/home.html) - Comprehensive guide for working with AWS CDK
 - [AWS CDK S3 Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html#s3) - API reference for S3 constructs in CDK
 - [AWS CDK EC2 Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html#ec2) - API reference for EC2 constructs in CDK
 

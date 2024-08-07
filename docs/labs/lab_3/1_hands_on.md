@@ -9,7 +9,7 @@ In this hands-on section, you will learn how to set up a Virtual Private Cloud (
 Ensure you have the necessary dependencies:
 
 ```bash
-npm install @aws-cdk/aws-ec2 @aws-cdk/aws-ssm
+npm install @aws-cdk/aws-ec2 @aws-cdk/aws-ssm @aws-cdk/aws-iam
 ```
 
 ## Define a VPC with Subnets and Route Tables
@@ -27,6 +27,7 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-ssm
    import { Construct } from "constructs";
    import * as ec2 from "aws-cdk-lib/aws-ec2";
    import * as ssm from "aws-cdk-lib/aws-ssm";
+   import * as iam from "aws-cdk-lib/aws-iam";
 
    export class MyCdkAppStack extends cdk.Stack {
      constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -70,14 +71,6 @@ In the VPC configuration, we use CIDR blocks to define the IP address ranges for
 - Public and private subnets use /24 CIDR blocks, each providing 256 IP addresses.
 
 This configuration allows for efficient IP address allocation while maintaining a clear separation between public and private resources.
-
-## VPC Network Diagram
-
-Here's a visual representation of our VPC structure:
-
-```
-[Insert a network diagram showing the VPC with public and private subnets]
-```
 
 ## Configure Security Groups
 
@@ -166,8 +159,6 @@ To use Session Manager, ensure the following prerequisites are met:
 Extend the stack file to include an IAM role for the EC2 instance:
 
 ```typescript
-import * as iam from "aws-cdk-lib/aws-iam";
-
 export class MyCdkAppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -223,15 +214,6 @@ export class MyCdkAppStack extends cdk.Stack {
       iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore")
     );
 
-    // Launch an EC2 instance with the IAM role
-    new ec2.Instance(this, "Instance", {
-      vpc,
-      instanceType: new ec2.InstanceType("t2.micro"),
-      machineImage: ec2.MachineImage.latestAmazonLinux(),
-      securityGroup: ec2SecurityGroup,
-      role: role,
-    });
-
     // Output the Security Group IDs
     new cdk.CfnOutput(this, "EC2SecurityGroupId", {
       value: ec2SecurityGroup.securityGroupId,
@@ -243,22 +225,48 @@ export class MyCdkAppStack extends cdk.Stack {
 }
 ```
 
-### Connecting to Your EC2 Instance
+## Lab Architecture
 
-1. **Open the AWS Systems Manager Console**
+Let's review the network architecture we've set up.
 
-   Go to the AWS Management Console and navigate to the Systems Manager service.
+![Networking Lab Architecture](media/lab_3_arch.drawio.svg)
 
-2. **Navigate to Session Manager**
+This diagram illustrates the key components of our lab:
 
-   In the Systems Manager console, look for Session Manager in the left navigation pane under the "Instances & Nodes" section.
+1. A Virtual Private Cloud (VPC) with public and private subnets spread across multiple Availability Zones.
+2. An EC2 instance launched in the public subnet, which we'll be connecting to using Systems Manager Session Manager.
+3. Security groups controlling inbound and outbound traffic for our EC2 instance.
+4. An IAM role attached to the EC2 instance, granting it permissions to use Systems Manager.
 
-3. **Start a Session**
+This architecture demonstrates a secure and scalable network setup. You'll notice that there are also a couple resources in the diagram we didn't actually specifiy.
 
-   - Select the instance you want to connect to from the list of managed instances.
-   - Click the "Start session" button.
+## Internet Gateway and NAT Gateway
 
-   This will open a browser-based shell session to your instance, allowing you to manage it without needing an SSH connection.
+In our VPC configuration, CDK automatically creates an Internet Gateway and a NAT Gateway. Let's discuss these components and their purposes:
+
+### Internet Gateway
+
+An Internet Gateway is automatically created and attached to our VPC when we define public subnets. It serves as a bridge between our VPC and the internet, allowing resources in the public subnets to communicate directly with the internet.
+
+Purpose:
+
+- Enables internet connectivity for resources in public subnets.
+- Allows inbound traffic from the internet to reach public resources.
+- Facilitates outbound internet access for resources in public subnets.
+
+### NAT Gateway
+
+A NAT (Network Address Translation) Gateway is automatically created in one of the public subnets when we specify `natGateways: 1` in our VPC configuration. It allows resources in private subnets to access the internet while preventing inbound connections from the internet to private resources.
+
+Purpose:
+
+- Enables outbound internet access for resources in private subnets.
+- Maintains security by preventing direct inbound access from the internet to private resources.
+- Provides a managed service that's highly available and scales automatically.
+
+Using a NAT Gateway is crucial for instances in private subnets that need to download updates, access external APIs, or perform other tasks requiring internet access, all while maintaining a secure network configuration.
+
+CDK creates these components automatically based on our configuration, simplifying the setup of networking components in our AWS environment.
 
 ## Deploy the Stack
 
@@ -276,7 +284,6 @@ To verify the deployment:
 
 - **VPC**: Open the AWS Management Console and navigate to the VPC service. Check the VPC, subnets, and route tables to ensure they were created correctly.
 - **Security Groups**: Navigate to the EC2 service and check the security groups to ensure they have the correct rules.
-- **Session Manager Access**: Use the Systems Manager console to start a session with your EC2 instance and verify that you can access it without SSH.
 
 ## Explanation of AWS Systems Manager Session Manager
 
@@ -306,4 +313,21 @@ role.addManagedPolicy(
 );
 ```
 
-By following these steps, you now have a secure, auditable, and easy-to-use method for managing your EC2 instances using AWS Systems Manager Session Manager. This approach aligns with best practices for securing and managing AWS infrastructure.
+## Checkpoint
+
+At this point, you should have:
+
+- Defined a VPC with public and private subnets
+- Created security groups for EC2 and RDS
+- Configured route tables for the subnets
+- Set up a NAT Gateway for the private subnet
+- Verified the network configuration in the AWS console
+
+If you're encountering issues, check the following:
+
+- Ensure your CIDR blocks for VPC and subnets don't overlap
+- Verify that your route tables are correctly associated with the subnets
+- Check that your security group rules allow the necessary inbound and outbound traffic
+- Make sure the NAT Gateway is placed in a public subnet
+
+Now we might have done some of the SSM set up in this lab, but we still need an EC2 instance to connect to. Let's do that in the next lab.

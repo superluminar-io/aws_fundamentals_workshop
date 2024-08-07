@@ -21,22 +21,23 @@ To navigate the AWS ecosystem effectively, it is crucial to understand some core
 - **Edge Locations**: These are sites that AWS CloudFront uses to cache copies of your content closer to your users, thereby reducing latency and improving performance.
 - **Elasticity**: This refers to the ability of AWS services to automatically increase or decrease resources as needed to meet demand, ensuring that applications can handle varying loads efficiently.
 - **Scalability**: Scalability is the capability of AWS services to grow in size, volume, or number of users while maintaining performance. This is essential for businesses that need to scale their operations seamlessly.
+- **EC2 (Elastic Compute Cloud)**: A core AWS service that provides resizable compute capacity in the cloud, allowing users to run virtual servers for various workloads.
 
 ### Benefits of Using AWS
 
 Amazon Web Services (AWS) offers a multitude of advantages, making it the preferred choice for many organizations seeking a robust, scalable, and cost-effective cloud platform.
 
-1. **Cost-Effective and Efficient Resource Management**: AWS’s pay-as-you-go pricing model ensures that you only pay for what you use, without the need for significant upfront or long-term commitments. This flexibility leads to substantial cost savings by trading fixed expenses for variable expenses. Instead of investing heavily in data centers and servers before knowing how you’ll use them, you pay only when you consume computing resources. This eliminates the need to guess infrastructure capacity needs, avoiding the pitfalls of either sitting on expensive idle resources or dealing with limited capacity. AWS allows you to access as much or as little capacity as needed, scaling up and down with only a few minutes’ notice. Additionally, by outsourcing the racking, stacking, and powering of servers to AWS, you can focus on projects that differentiate your business and direct your efforts towards your own customers and core business activities, enhancing overall productivity and innovation.
+1. **Cost-Effective and Efficient Resource Management**: AWS's pay-as-you-go pricing model ensures that you only pay for what you use, without the need for significant upfront or long-term commitments. This flexibility leads to substantial cost savings by trading fixed expenses for variable expenses. Instead of investing heavily in data centers and servers before knowing how you'll use them, you pay only when you consume computing resources. This eliminates the need to guess infrastructure capacity needs, avoiding the pitfalls of either sitting on expensive idle resources or dealing with limited capacity. AWS allows you to access as much or as little capacity as needed, scaling up and down with only a few minutes' notice. Additionally, by outsourcing the racking, stacking, and powering of servers to AWS, you can focus on projects that differentiate your business and direct your efforts towards your own customers and core business activities, enhancing overall productivity and innovation.
 
 2. **Benefit from Massive Economies of Scale**: By using cloud computing, you can achieve a lower variable cost than on your own. AWS aggregates usage from hundreds of thousands of customers, enabling it to achieve higher economies of scale, translating into lower pay-as-you-go prices. This collective advantage allows businesses of all sizes to benefit from reduced costs and improved efficiency.
 
 3. **Increase Speed and Agility**: In a cloud computing environment, new IT resources are only a click away, reducing the time to make those resources available from weeks to just minutes. This dramatic increase in agility enables organizations to experiment and develop at a significantly lower cost and time. The ease of accessing and deploying resources quickly fosters innovation and accelerates time-to-market for new projects.
 
-4. **Secure**: AWS implements a comprehensive security approach that includes physical, operational, and software measures to protect infrastructure and data. AWS’s security practices are designed to comply with industry standards and certifications, providing a robust security framework that helps safeguard your applications and data.
+4. **Secure**: AWS implements a comprehensive security approach that includes physical, operational, and software measures to protect infrastructure and data. AWS's security practices are designed to comply with industry standards and certifications, providing a robust security framework that helps safeguard your applications and data.
 
-5. **Flexible**: AWS supports a wide range of programming models, operating systems, databases, and architectures. This flexibility allows businesses to use the tools and technologies they are already familiar with, facilitating a smoother transition to the cloud. Whether you’re running legacy applications or developing new ones, AWS provides the flexibility needed to meet diverse business requirements.
+5. **Flexible**: AWS supports a wide range of programming models, operating systems, databases, and architectures. This flexibility allows businesses to use the tools and technologies they are already familiar with, facilitating a smoother transition to the cloud. Whether you're running legacy applications or developing new ones, AWS provides the flexibility needed to meet diverse business requirements.
 
-6. **Global Reach**: With AWS, you can deploy applications in multiple regions worldwide with just a few clicks. This global reach enables businesses to provide low-latency access to applications for users around the world, enhancing user experience and satisfaction. AWS’s ability to go global in minutes allows businesses to expand their footprint and reach new markets efficiently.
+6. **Global Reach**: With AWS, you can deploy applications in multiple regions worldwide with just a few clicks. This global reach enables businesses to provide low-latency access to applications for users around the world, enhancing user experience and satisfaction. AWS's ability to go global in minutes allows businesses to expand their footprint and reach new markets efficiently.
 
 By leveraging these advantages, AWS empowers organizations to innovate faster, reduce costs, and scale applications globally with ease, making it an essential platform for modern businesses.
 
@@ -51,6 +52,11 @@ Amazon Web Services (AWS) operates its cloud infrastructure globally, organized 
 Each AZ has independent power, cooling, and physical security, and they are interconnected through low-latency links. This setup allows businesses to architect highly available and fault-tolerant applications. For example, by deploying applications across multiple AZs within a region, you can ensure that if one AZ experiences an issue, the application can continue to operate from the other AZs without interruption. This multi-AZ deployment strategy is crucial for maintaining business continuity and delivering reliable user experiences.
 
 AWS regions are strategically placed around the world to provide low-latency access to customers and to meet data residency requirements. As of now, AWS has dozens of regions globally, each with multiple AZs, ensuring that users can deploy applications close to their end-users, which improves performance and reduces latency.
+
+In addition to Regions and Availability Zones, AWS also offers Local Zones and Wavelength Zones:
+
+- **Local Zones**: These are extensions of AWS Regions, placed in densely populated areas to provide single-digit millisecond latency for specific applications.
+- **Wavelength Zones**: These are infrastructure deployments embedded within telecommunications providers' data centers at the edge of the 5G network, enabling ultra-low latency applications.
 
 **Understanding Edge Locations and AWS Global Accelerator**
 
@@ -72,6 +78,10 @@ Cloud computing has revolutionized how businesses manage their IT resources by p
 - **Platform as a Service (PaaS)**: PaaS provides a platform that allows developers to build, deploy, and manage applications without worrying about the underlying infrastructure. It offers a set of tools and services designed to make the development process more efficient. AWS Elastic Beanstalk is an example of PaaS, enabling developers to deploy and scale web applications and services. With PaaS, the provider manages the infrastructure, operating system, and middleware, allowing developers to focus solely on writing code and developing their applications.
 - **Software as a Service (SaaS)**: SaaS delivers software applications over the internet on a subscription basis. These applications are hosted and managed by the service provider, eliminating the need for businesses to install and maintain software on their own servers. SaaS applications are accessible from any device with an internet connection, providing flexibility and ease of use. Examples of SaaS include Amazon WorkSpaces, a cloud-based virtual desktop service, and Amazon Chime, a communications service for online meetings and video conferencing. SaaS is ideal for applications that require web or mobile access and for businesses looking to offload the management and maintenance of software applications.
 
+### Shared Responsibility Model
+
+It's important to note that AWS operates on a Shared Responsibility Model. This model delineates the security responsibilities between AWS and the customer. AWS is responsible for the security "of" the cloud (infrastructure), while customers are responsible for security "in" the cloud (data, access management, etc.). Understanding this model is crucial for properly securing your AWS deployments across all computing models.
+
 ### Cloud Computing Models Comparison
 
 | Model | Control | Flexibility | Management Overhead | Example AWS Services   |
@@ -89,3 +99,14 @@ Understanding the appropriate use cases for each cloud computing model is crucia
 - **SaaS Use Case**: An organization needing a reliable and scalable email service can utilize Amazon WorkMail, a managed email and calendaring service. With SaaS, the organization avoids the complexities of managing email servers, software updates, and security patches. Employees can access their email from any device, ensuring seamless communication and collaboration.
 
 By understanding the different cloud computing models—Infrastructure as a Service (IaaS), Platform as a Service (PaaS), and Software as a Service (SaaS)—and their respective use cases, businesses can select the most appropriate model for their needs. This enables them to optimize costs, improve efficiency, and focus on their core competencies.
+
+## AWS Pricing Models
+
+AWS offers several pricing models:
+
+- Pay-as-you-go: Pay only for the resources you use, with no long-term commitments.
+- Savings Plans: Commit to a consistent amount of usage for a 1 or 3 year term in exchange for lower prices.
+- Reserved Instances: Pre-pay for EC2 instances to receive significant discounts.
+- Spot Instances: Bid on spare EC2 computing capacity for up to 90% off the on-demand price.
+
+Always check the pricing page for each AWS service before using it in production.

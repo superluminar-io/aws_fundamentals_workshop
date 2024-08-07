@@ -1,5 +1,7 @@
 # Lab 1: Introduction to AWS CDK
 
+This lab provides an introduction to AWS Cloud Development Kit (CDK), covering its core concepts, setup process, and advantages over other AWS deployment methods.
+
 ## Overview of AWS CDK
 
 The AWS Cloud Development Kit (CDK) is an open-source software development framework that allows developers to define cloud infrastructure using familiar programming languages such as TypeScript, JavaScript, Python, Java, and C#. By leveraging the power of these high-level programming languages, AWS CDK enables developers to create reusable cloud components, called constructs, which can be composed together to build complex cloud applications. The CDK abstracts the intricate details of AWS CloudFormation, making it easier to provision and manage AWS resources.
@@ -29,6 +31,8 @@ To begin using AWS CDK, you'll need to set up your development environment. This
    ```
 
    For detailed installation instructions and troubleshooting, refer to the [official AWS CDK documentation](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_install).
+
+   **Note:** Make sure to install the latest version of AWS CDK (v2) for the best experience.
 
    Before using the CDK CLI, ensure you have:
 
@@ -115,7 +119,7 @@ There are many options for deploying resources in AWS, including third party too
 
 **Comparison: AWS CDK vs. AWS Management Console, CLI, SDKs, and CloudFormation**
 
-- **AWS CDK**: Use AWS CDK when you want to define your infrastructure using familiar programming languages and leverage the power of reusable constructs. CDK is ideal for developers who prefer writing code over manually configuring resources. It integrates well with existing development workflows and tools, supports testing, and enables version control of infrastructure code. AWS CDK also abstracts many of the complexities involved in writing raw CloudFormation templates, making infrastructure as code more accessible and easier to manage.
+- **AWS CDK**: Use AWS CDK when you want to define your infrastructure using familiar programming languages and leverage the power of reusable constructs. CDK is ideal for developers who prefer writing code over manually configuring resources. It integrates well with existing development workflows and tools, supports testing, and enables version control of infrastructure code. AWS CDK also abstracts many of the complexities involved in writing raw CloudFormation templates, making infrastructure as code more accessible and easier to manage. Additionally, CDK offers CDK Pipelines, a high-level construct library that makes it easy to set up continuous delivery pipelines for your CDK applications.
 
 - **AWS Management Console**: The AWS Management Console is a user-friendly graphical interface that is suitable for simple and ad-hoc tasks. It is ideal for beginners or for situations where you need to quickly configure or monitor resources. However, it is less suitable for managing large or complex environments due to its manual nature.
 

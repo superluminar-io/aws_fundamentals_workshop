@@ -2,11 +2,11 @@
 
 ## Overview
 
-After completing the labs, it’s important to clean up the resources you have created to avoid incurring any unnecessary costs. This clean-up guide will help you delete all the AWS resources created during Labs 3, 4, and 5.
+After completing the labs, it's important to clean up the resources you have created to avoid incurring any unnecessary costs. This clean-up guide will help you delete all the AWS resources created during Labs 3, 4, and 5.
 
 ## Steps to Clean Up
 
-**1. Delete the Stack Using CDK**
+### 1. Delete the Stack Using CDK
 
 The simplest way to delete all resources created by your CDK stack is to destroy the stack itself. This will automatically clean up all resources managed by the stack.
 
@@ -24,7 +24,7 @@ The simplest way to delete all resources created by your CDK stack is to destroy
 
    Confirm the deletion when prompted. This will delete all resources created by the stack, including the VPC, subnets, security groups, EC2 instance, S3 bucket, and RDS instance.
 
-**2. Manual Verification (Optional)**
+### 2. Manual Verification (Optional)
 
 To ensure all resources are properly deleted, you can manually verify the deletion using the AWS Management Console and CLI.
 
@@ -69,7 +69,7 @@ Run the following commands to verify the deletion of resources:
   ```
   Ensure the VPC is not listed.
 
-**3. Remove Generated Secrets (Optional)**
+### 3. Remove Generated Secrets (Optional)
 
 If you have generated secrets in AWS Secrets Manager, ensure they are also deleted.
 
@@ -87,6 +87,13 @@ If you have generated secrets in AWS Secrets Manager, ensure they are also delet
   aws secretsmanager delete-secret --secret-id <secret-arn> --force-delete-without-recovery
   ```
 
+### 4. Check for Remaining Resources (Recommended)
+
+After completing the above steps, it's a good practice to double-check for any remaining resources:
+
+- Review the AWS Cost Explorer to ensure there are no unexpected charges.
+- Check other AWS services not mentioned above (e.g., Lambda functions, CloudWatch logs) to ensure complete cleanup.
+
 ## Summary
 
-By following these steps, you will ensure that all resources created during the labs are properly cleaned up, avoiding unnecessary costs. The `cdk destroy` command is the primary method for clean-up, but manual verification steps are provided for completeness.
+By following these steps, you will ensure that all resources created during the labs are properly cleaned up, avoiding unnecessary costs. The `cdk destroy` command is the primary method for clean-up, but manual verification steps are provided for completeness. Always double-check your AWS account to confirm all resources have been removed.

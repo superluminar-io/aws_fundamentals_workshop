@@ -34,4 +34,9 @@ To dive deeper into the topics covered in Lab 5, here are some helpful resources
 - [RDS Performance Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_BestPractices.Performance.html) - Best practices for optimizing RDS performance
 - [Aurora Performance Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.BestPractices.html) - Best practices for optimizing Aurora performance
 
+## Monitoring and Troubleshooting
+
+- [RDS Monitoring](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Monitoring.html) - Guide to monitoring RDS instances
+- [Aurora Monitoring](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/MonitoringAurora.html) - Guide to monitoring Aurora clusters
+
 These resources should provide a solid foundation for further exploration of the database technologies introduced in Lab 5. Happy learning!

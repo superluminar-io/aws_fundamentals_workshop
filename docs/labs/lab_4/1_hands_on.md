@@ -83,8 +83,11 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
        // Create an EC2 instance
        const ec2Instance = new ec2.Instance(this, "MyEC2Instance", {
          vpc,
-         instanceType: new ec2.InstanceType("t2.micro"),
-         machineImage: ec2.MachineImage.latestAmazonLinux(),
+         instanceType: ec2.InstanceType.of(
+           ec2.InstanceClass.T2,
+           ec2.InstanceSize.MICRO
+         ),
+         machineImage: ec2.MachineImage.latestAmazonLinux2(),
          securityGroup: ec2SecurityGroup,
          vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
          role: role,
@@ -171,11 +174,30 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
          "Effect": "Allow",
          "Principal": "*",
          "Action": "s3:GetObject",
-         "Resource": "arn:aws:s3:::mybucket/*"
+         "Resource": "arn:aws:s3:::${YOUR_BUCKET_NAME}/*"
        }
      ]
    }
    ```
+
+## Lab Architecture
+
+Before we proceed with verifying the deployment, let's take a moment to review the architecture we've built in this lab:
+
+![Core Services Lab Architecture](media/lab_4_arch.drawio.svg)
+
+This diagram illustrates the key components of our lab:
+
+1. A Virtual Private Cloud (VPC) with public and private subnets spread across multiple Availability Zones, which we set up in the previous lab.
+2. An EC2 instance launched in the public subnet, which we can connect to using Systems Manager Session Manager.
+3. Security groups controlling inbound and outbound traffic for our EC2 instance.
+4. An S3 bucket for storing objects, with a bucket policy controlling access.
+5. IAM roles and policies managing permissions for the EC2 instance and S3 bucket access.
+6. CloudWatch for monitoring and logging of our EC2 instance and S3 bucket activities.
+
+This architecture demonstrates a secure and scalable setup for core AWS services, allowing us to manage compute resources and object storage while maintaining proper security controls and monitoring capabilities.
+
+Now, let's proceed with verifying the deployment of these resources:
 
 ### Connecting to Your EC2 Instance
 
@@ -193,6 +215,23 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
    - Click the "Start session" button.
 
    This will open a browser-based shell session to your instance, allowing you to manage it without needing an SSH connection.
+
+## Checkpoint
+
+At this point, you should have:
+
+- Created an S3 bucket using CDK
+- Launched an EC2 instance in the public subnet
+- Configured the EC2 instance to use Systems Manager Session Manager
+- Created a CloudWatch alarm for the EC2 instance
+- Successfully connected to the EC2 instance using Session Manager
+
+If you're encountering issues, check the following:
+
+- Verify that the S3 bucket was created successfully
+- Ensure the EC2 instance has the correct IAM role for Systems Manager access
+- Check that the VPC endpoints for Systems Manager are correctly configured
+- Verify that the CloudWatch alarm is set up with the correct metrics
 
 ## EC2 Instance Management Best Practices
 
@@ -227,6 +266,8 @@ myBucketPolicy.document.addStatements(
 ```typescript
 const myBucket = new s3.Bucket(this, "MyBucket", {
   versioned: true,
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+  autoDeleteObjects: true,
 });
 ```
 

@@ -83,11 +83,18 @@ Key features:
      ```
    - To create an S3 bucket:
      ```bash
-     aws s3 mb s3://my-bucket
+     aws s3 mb s3://my-bucket-name
      ```
-   - To set up an RDS database:
+   - To create an RDS database instance:
      ```bash
-     aws rds create-db-instance --db-instance-identifier mydatabase --allocated-storage 20 --db-instance-class db.t2.micro --engine mysql --master-username admin --master-user-password password --backup-retention-period 3
+     aws rds create-db-instance \
+         --db-instance-identifier mydatabase \
+         --allocated-storage 20 \
+         --db-instance-class db.t2.micro \
+         --engine mysql \
+         --master-username admin \
+         --master-user-password mypassword123 \
+         --backup-retention-period 3
      ```
 
-By understanding these core AWS services and how to use the AWS Management Console and CLI, you will be well-equipped to manage your AWS resources effectively. This foundational knowledge will enable you to build, deploy, and manage applications in the AWS Cloud.
+By understanding these core AWS services and how to use the AWS Management Console and CLI, you'll be well-equipped to manage your AWS resources effectively. This foundational knowledge will enable you to build, deploy, and manage applications in the AWS Cloud.

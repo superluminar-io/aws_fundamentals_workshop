@@ -7,6 +7,7 @@ To dive deeper into the topics covered in Lab 1, here are some helpful resources
 - [AWS CDK Developer Guide](https://docs.aws.amazon.com/cdk/v2/guide/home.html) - Official comprehensive guide to using AWS CDK
 - [AWS CDK Workshop](https://cdkworkshop.com/) - Hands-on tutorial to learn CDK concepts
 - [AWS CDK API Reference](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html) - Detailed API documentation for CDK constructs
+- [AWS CDK Examples](https://github.com/aws-samples/aws-cdk-examples) - Repository of CDK code examples
 
 ## TypeScript
 
@@ -18,10 +19,12 @@ To dive deeper into the topics covered in Lab 1, here are some helpful resources
 
 - [AWS CLI User Guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html) - Comprehensive guide to using the AWS Command Line Interface
 - [AWS CLI Command Reference](https://awscli.amazonaws.com/v2/documentation/api/latest/index.html) - Detailed reference for all AWS CLI commands
+- [AWS CLI Cheat Sheet](https://www.bluematador.com/learn/aws-cli-cheatsheet) - Quick reference for common AWS CLI commands
 
 ## AWS Management Console
 
 - [AWS Management Console Documentation](https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/getting-started.html) - Guide to navigating and using the AWS Management Console
 - [AWS Console Feature Overview](https://aws.amazon.com/console/features/) - Overview of key features in the AWS Management Console
+- [AWS Console Mobile Application](https://aws.amazon.com/console/mobile/) - Information about the AWS Console mobile app for on-the-go management
 
 These resources should provide a solid foundation for further exploration of the topics introduced in Lab 1. Happy learning!

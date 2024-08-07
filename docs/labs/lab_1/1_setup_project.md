@@ -1,5 +1,7 @@
 # Lab 1: Introduction to AWS CDK
 
+This lab introduces you to AWS CDK (Cloud Development Kit) and guides you through setting up your initial project environment. You'll learn how to install the CDK toolkit, create a new project, and deploy a simple stack.
+
 ## Set up the Initial Project Environment Using CDK
 
 **Install AWS CDK and Set Up a New CDK Project**
@@ -15,16 +17,40 @@ To get started with AWS CDK, you need to install the AWS CDK Toolkit and set up 
 
    This command installs the CDK Toolkit globally on your machine, making the `cdk` command available from any directory.
 
+   To verify the installation, run:
+
+   ```bash
+   cdk --version
+   ```
+
 2. **Create a New CDK Project**:
-   Navigate to the directory where you want to create your new CDK project. Run the following command to initialize a new CDK application in the desired programming language (replace `<language>` with your preferred language, such as `typescript`, `javascript`, `python`, `java`, or `csharp`):
+   Navigate to the directory where you want to create your new CDK project. We'll name our project `aws-fundamentals-workshop`. Run the following command to initialize a new CDK application:
+
    ```bash
-   cdk init app --language=<language>
+   cdk init app --language=typescript --name=aws-fundamentals-workshop
    ```
-   In our workshop, we will be using TypeScript:
+
+   This command sets up a new CDK project named `aws-fundamentals-workshop` with a basic directory structure and necessary configuration files.
+
+   After the project is created, change into the project directory:
+
    ```bash
-   cdk init app --language=typescript
+   cd aws-fundamentals-workshop
    ```
-   This command sets up a new CDK project with a basic directory structure and necessary configuration files.
+
+## Lab Architecture
+
+Before we proceed, let's take a look at the architecture we'll be building in this lab:
+
+![Initial Setup Lab Architecture](media/lab_1_arch.drawio.svg)
+
+This diagram illustrates the key components of our lab:
+
+1. A CDK application that defines our infrastructure as code.
+2. A CloudFormation stack that will be generated from our CDK code.
+3. A simple CloudFormation output that we'll create to verify our setup.
+
+This basic architecture allows us to demonstrate the CDK deployment process and ensure our environment is correctly set up for the subsequent labs.
 
 ## Configure AWS Credentials with SSO
 
@@ -89,6 +115,23 @@ After setting up the project and configuring SSO, you can define your first stac
    - Find and select the stack you just deployed.
    - In the stack details, go to the "Outputs" tab to see the output value "Hello, CDK!".
 
+## Checkpoint
+
+At this point, you should have:
+
+- Installed the AWS CDK Toolkit
+- Created a new CDK project
+- Defined a basic stack with a CloudFormation output
+- Successfully deployed the stack using `cdk deploy`
+- Verified the output in the AWS CloudFormation console
+
+If you're encountering issues, check the following:
+
+- Ensure Node.js and npm are correctly installed and in your PATH
+- Verify that you have the latest version of AWS CDK installed
+- Check that your AWS credentials are properly configured
+- Make sure you have the necessary permissions to create CloudFormation stacks
+
 ## Reset the Stack for the Next Lab
 
 To ensure the environment is clean for the next lab, follow these steps to delete the stack and clean up your project:
@@ -117,11 +160,5 @@ To ensure the environment is clean for the next lab, follow these steps to delet
      }
    }
    ```
-
-## Troubleshooting
-
-- If you encounter "command not found" errors, ensure that Node.js and npm are correctly installed and added to your system PATH.
-- If `cdk deploy` fails, check your AWS credentials and ensure you have the necessary permissions to create resources.
-- If you're using AWS SSO and encounter authentication issues, make sure you've successfully logged in using `aws sso login` before running CDK commands.
 
 Great work! You've set up your initial project environment using AWS CDK, deployed a basic stack, and cleaned up the environment for the next lab. This process has given you a strong starting point for building more complex cloud applications with AWS CDK.
