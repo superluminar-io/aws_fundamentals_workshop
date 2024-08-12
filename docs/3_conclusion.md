@@ -11,7 +11,6 @@ Let's recap what you've accomplished:
    - Identity and Access Management (IAM)
    - Simple Storage Service (S3)
    - Elastic Compute Cloud (EC2)
-   - CloudWatch
    - Relational Database Service (RDS)
    - Virtual Private Cloud (VPC) and Networking
 
@@ -35,7 +34,6 @@ This workshop has provided you with a solid foundation in AWS. Remember that clo
 
 ## Join the AWS Community
 
-- [AWS Forums](https://forums.aws.amazon.com/)
 - [AWS re:Post](https://repost.aws/)
 - [AWS User Groups](https://aws.amazon.com/developer/community/usergroups/)
 

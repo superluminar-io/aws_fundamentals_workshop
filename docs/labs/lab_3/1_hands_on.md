@@ -4,14 +4,6 @@
 
 In this hands-on section, you will learn how to set up a Virtual Private Cloud (VPC) with subnets and route tables, and configure security groups using the AWS Cloud Development Kit (CDK). This exercise will guide you through defining network infrastructure and security settings in code and deploying them to your AWS account. Additionally, you will learn to use AWS Systems Manager Session Manager for secure instance access, avoiding the need for open SSH ports.
 
-## Prerequisites:
-
-Ensure you have the necessary dependencies:
-
-```bash
-npm install @aws-cdk/aws-ec2 @aws-cdk/aws-ssm @aws-cdk/aws-iam
-```
-
 ## Define a VPC with Subnets and Route Tables
 
 1. **Open Your CDK Project**
@@ -20,48 +12,45 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-ssm @aws-cdk/aws-iam
 
 2. **Define the VPC in Your Stack**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/my-cdk-app-stack.ts` for a TypeScript project). Add the following code to define a VPC with public and private subnets:
+   Open the stack file located in the `lib` directory (e.g., `lib/my-cdk-app-stack.ts` for a TypeScript project). Add the following code to define a VPC with public and private subnets ([it will only use two AZs as our CDK stack is environment agnostic.](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ec2.Vpc.html#maxazs)):
 
-   ```typescript
-   import * as cdk from "aws-cdk-lib";
-   import { Construct } from "constructs";
-   import * as ec2 from "aws-cdk-lib/aws-ec2";
-   import * as ssm from "aws-cdk-lib/aws-ssm";
-   import * as iam from "aws-cdk-lib/aws-iam";
+```typescript
+import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib'
+import { SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2'
+import { Construct } from 'constructs'
 
-   export class MyCdkAppStack extends cdk.Stack {
-     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-       super(scope, id, props);
+export class AwsFundamentalsWorkshopLabsStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props)
 
-       // Create a VPC
-       const vpc = new ec2.Vpc(this, "MyVpc", {
-         maxAzs: 3, // Default is all AZs in the region
-         natGateways: 1,
-         subnetConfiguration: [
-           {
-             cidrMask: 24,
-             name: "public",
-             subnetType: ec2.SubnetType.PUBLIC,
-           },
-           {
-             cidrMask: 24,
-             name: "private",
-             subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
-           },
-         ],
-       });
+    // Create a VPC
+    const vpc = new Vpc(this, 'MyVpc', {
+      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'public',
+          subnetType: SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'private',
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
+        },
+      ],
+    })
 
-       // Output the VPC ID
-       new cdk.CfnOutput(this, "VpcId", {
-         value: vpc.vpcId,
-       });
-     }
-   }
-   ```
+    // Output the VPC ID
+    new CfnOutput(this, 'VpcId', {
+      value: vpc.vpcId,
+    })
+  }
+}
+```
 
-   > **Important:** Unlike the previous labs, we will be extending this stack in the following labs. It's crucial to keep this code as is before moving on to the next lab. This will serve as the foundation for our upcoming work with AWS services.
+> **Important:** Unlike the previous labs, we will be extending this stack in the following labs. It's crucial to keep this code as is before moving on to the next lab. This will serve as the foundation for our upcoming work with AWS services.
 
-   This code sets up a VPC with both public and private subnets, configured with a NAT Gateway for internet access from private subnets.
+This code sets up a VPC with both public and private subnets, configured with a NAT Gateway for internet access from private subnets.
 
 ## Understanding CIDR Blocks in VPC Configuration
 
@@ -79,59 +68,67 @@ This configuration allows for efficient IP address allocation while maintaining 
 Extend the stack file to include security groups:
 
 ```typescript
-export class MyCdkAppStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib'
+import { SubnetType, Vpc, SecurityGroup, Peer, Port } from 'aws-cdk-lib/aws-ec2'
+import { Construct } from 'constructs'
+
+export class AwsFundamentalsWorkshopLabsStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props)
 
     // Create a VPC
-    const vpc = new ec2.Vpc(this, "MyVpc", {
-      maxAzs: 3,
-      natGateways: 1,
+    const vpc = new Vpc(this, 'MyVpc', {
+      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: "public",
-          subnetType: ec2.SubnetType.PUBLIC,
+          name: 'public',
+          subnetType: SubnetType.PUBLIC,
         },
         {
           cidrMask: 24,
-          name: "private",
-          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          name: 'private',
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
         },
       ],
-    });
+    })
 
     // Security Group for EC2 instance
-    const ec2SecurityGroup = new ec2.SecurityGroup(this, "EC2SecurityGroup", {
+    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
       vpc,
       allowAllOutbound: true,
-      description: "Allow HTTP access to EC2 instance",
-    });
+      description: 'Allow HTTP access to EC2 instance',
+    })
     ec2SecurityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(80),
-      "Allow HTTP access"
-    );
+      Peer.anyIpv4(),
+      Port.tcp(80),
+      'Allow HTTP access'
+    )
 
     // Security Group for RDS instance
-    const rdsSecurityGroup = new ec2.SecurityGroup(this, "RDSSecurityGroup", {
+    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
       vpc,
       allowAllOutbound: true,
-      description: "Allow MySQL access to RDS instance",
-    });
+      description: 'Allow MySQL access to RDS instance',
+    })
     rdsSecurityGroup.addIngressRule(
       ec2SecurityGroup,
-      ec2.Port.tcp(3306),
-      "Allow MySQL access from EC2 instance"
-    );
+      Port.tcp(3306),
+      'Allow MySQL access from EC2 instance'
+    )
 
     // Output the Security Group IDs
-    new cdk.CfnOutput(this, "EC2SecurityGroupId", {
+    new CfnOutput(this, 'EC2SecurityGroupId', {
       value: ec2SecurityGroup.securityGroupId,
-    });
-    new cdk.CfnOutput(this, "RDSSecurityGroupId", {
+    })
+    new CfnOutput(this, 'RDSSecurityGroupId', {
       value: rdsSecurityGroup.securityGroupId,
-    });
+    })
+
+    // Output the VPC ID
+    new CfnOutput(this, 'VpcId', {
+      value: vpc.vpcId,
+    })
   }
 }
 ```
@@ -159,112 +156,122 @@ To use Session Manager, ensure the following prerequisites are met:
 Extend the stack file to include an IAM role for the EC2 instance:
 
 ```typescript
-export class MyCdkAppStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib'
+import { SubnetType, Vpc, SecurityGroup, Peer, Port } from 'aws-cdk-lib/aws-ec2'
+import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
+import { Construct } from 'constructs'
+
+export class AwsFundamentalsWorkshopLabsStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props)
 
     // Create a VPC
-    const vpc = new ec2.Vpc(this, "MyVpc", {
-      maxAzs: 3,
-      natGateways: 1,
+    const vpc = new Vpc(this, 'MyVpc', {
+      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: "public",
-          subnetType: ec2.SubnetType.PUBLIC,
+          name: 'public',
+          subnetType: SubnetType.PUBLIC,
         },
         {
           cidrMask: 24,
-          name: "private",
-          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          name: 'private',
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
         },
       ],
-    });
+    })
 
     // Security Group for EC2 instance
-    const ec2SecurityGroup = new ec2.SecurityGroup(this, "EC2SecurityGroup", {
+    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
       vpc,
       allowAllOutbound: true,
-      description: "Allow HTTP access to EC2 instance",
-    });
+      description: 'Allow HTTP access to EC2 instance',
+    })
     ec2SecurityGroup.addIngressRule(
-      ec2.Peer.anyIpv4(),
-      ec2.Port.tcp(80),
-      "Allow HTTP access"
-    );
+      Peer.anyIpv4(),
+      Port.tcp(80),
+      'Allow HTTP access'
+    )
 
     // Security Group for RDS instance
-    const rdsSecurityGroup = new ec2.SecurityGroup(this, "RDSSecurityGroup", {
+    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
       vpc,
       allowAllOutbound: true,
-      description: "Allow MySQL access to RDS instance",
-    });
+      description: 'Allow MySQL access to RDS instance',
+    })
     rdsSecurityGroup.addIngressRule(
       ec2SecurityGroup,
-      ec2.Port.tcp(3306),
-      "Allow MySQL access from EC2 instance"
-    );
+      Port.tcp(3306),
+      'Allow MySQL access from EC2 instance'
+    )
 
     // IAM role for EC2 instance to use SSM
-    const role = new iam.Role(this, "SSMRole", {
-      assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-    });
+    const role = new Role(this, 'SSMRole', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+    })
 
+    // Attach the AmazonSSMManagedInstanceCore managed policy to the role
     role.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore")
-    );
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
+    )
 
     // Output the Security Group IDs
-    new cdk.CfnOutput(this, "EC2SecurityGroupId", {
+    new CfnOutput(this, 'EC2SecurityGroupId', {
       value: ec2SecurityGroup.securityGroupId,
-    });
-    new cdk.CfnOutput(this, "RDSSecurityGroupId", {
+    })
+    new CfnOutput(this, 'RDSSecurityGroupId', {
       value: rdsSecurityGroup.securityGroupId,
-    });
+    })
+
+    // Output the VPC ID
+    new CfnOutput(this, 'VpcId', {
+      value: vpc.vpcId,
+    })
   }
 }
 ```
 
 ## Lab Architecture
 
-Let's review the network architecture we've set up.
+**Description:**
 
-![Networking Lab Architecture](media/lab_3_arch.drawio.svg)
+The architecture diagram for this lab illustrates the key components and their interactions within a Virtual Private Cloud (VPC).
 
-This diagram illustrates the key components of our lab:
+![Lab 3 Networking Architecture](../../media/lab_3_arch.drawio.svg)
 
-1. A Virtual Private Cloud (VPC) with public and private subnets spread across multiple Availability Zones.
-2. An EC2 instance launched in the public subnet, which we'll be connecting to using Systems Manager Session Manager.
-3. Security groups controlling inbound and outbound traffic for our EC2 instance.
-4. An IAM role attached to the EC2 instance, granting it permissions to use Systems Manager.
+**Explanation of the Diagram:**
+
+- **VPC**: The outermost box represents the VPC, encompassing all network components.
+- **Availability Zones (AZs)**: The diagram shows two Availability Zones, represented by the dashed lines dividing the VPC. Each AZ is an isolated location within an AWS Region, with its own power, cooling, and networking infrastructure.
+  - **Multiple AZs**: The VPC spans across multiple AZs, typically two or more, to provide high availability and fault tolerance.
+  - **Subnet Distribution**: Both public and private subnets are distributed across different AZs. This ensures that if one AZ fails, resources in the other AZ can continue to operate.
+  - **Redundancy**: Critical components like NAT Gateways are often deployed in multiple AZs for increased reliability.
+- **Public Subnet**: Located within the VPC, connected to the Internet Gateway, and hosting resources like web servers.
+- **Private Subnet**: Also within the VPC, connected to the NAT Gateway, and hosting resources like application servers and databases.
+- **Route Tables**: Indicating how traffic is routed within the VPC. The public subnet's route table includes a route to the Internet Gateway, while the private subnet's route table includes a route to the NAT Gateway.
+- **Security Groups**: Represented as boundaries around individual resources, showing the control of traffic at the instance level. These will include rules to allow or deny specific types of traffic to and from the resources within the VPC.
+- **Internet Gateway**: Shown connecting the VPC to the internet, allowing communication between the public subnet and the outside world.
+- **NAT Gateway**: Depicted in the public subnet, allowing resources in the private subnet to access the internet for updates or external services while maintaining security. (To reduce costs, we only deployed a single NAT in this lab.)
+
+By leveraging multiple AZs, the architecture achieves greater resilience against failures and ensures better performance by distributing resources geographically within a region.
+
+This diagram helps visualize how different components in the VPC interact with each other and how security is enforced at the instance level using security groups. It provides a clear overview of the network architecture, showing the relationships between public and private subnets, internet and NAT gateways, and how traffic flows within the VPC and to/from the internet.
 
 This architecture demonstrates a secure and scalable network setup. You'll notice that there are also a couple resources in the diagram we didn't actually specifiy.
 
-## Internet Gateway and NAT Gateway
+## Automatic Creation of Network Components
 
-In our VPC configuration, CDK automatically creates an Internet Gateway and a NAT Gateway. Let's discuss these components and their purposes:
+In our CDK code, we didn't explicitly define an Internet Gateway, Route Tables, or NAT Gateway. However, these components appear in our architecture diagram. This is due to the high-level abstractions provided by the AWS CDK, specifically through the `ec2.Vpc` construct. Let's break down how these components are automatically created:
 
-### Internet Gateway
+1. **Internet Gateway**:
+   When we create a VPC with public subnets using the `ec2.Vpc` construct, CDK automatically creates and attaches an Internet Gateway to the VPC. This is because public subnets, by definition, require internet access.
 
-An Internet Gateway is automatically created and attached to our VPC when we define public subnets. It serves as a bridge between our VPC and the internet, allowing resources in the public subnets to communicate directly with the internet.
+2. **Route Tables**:
+   CDK automatically creates and configures route tables for both public and private subnets:
 
-Purpose:
-
-- Enables internet connectivity for resources in public subnets.
-- Allows inbound traffic from the internet to reach public resources.
-- Facilitates outbound internet access for resources in public subnets.
-
-### NAT Gateway
-
-A NAT (Network Address Translation) Gateway is automatically created in one of the public subnets when we specify `natGateways: 1` in our VPC configuration. It allows resources in private subnets to access the internet while preventing inbound connections from the internet to private resources.
-
-Purpose:
-
-- Enables outbound internet access for resources in private subnets.
-- Maintains security by preventing direct inbound access from the internet to private resources.
-- Provides a managed service that's highly available and scales automatically.
-
-Using a NAT Gateway is crucial for instances in private subnets that need to download updates, access external APIs, or perform other tasks requiring internet access, all while maintaining a secure network configuration.
+   - For public subnets, it creates a route table with a route to the Internet Gateway.
+   - For private subnets, it creates a separate route table with a route to the NAT Gateway.
 
 CDK creates these components automatically based on our configuration, simplifying the setup of networking components in our AWS environment.
 
@@ -276,7 +283,7 @@ To deploy the stack to your AWS account, run the following command from the root
 cdk deploy --profile PROFILE_NAME
 ```
 
-This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and EC2 instance with the IAM role for Systems Manager access.
+This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and EC2 instance with the IAM role for Systems Manager access. Remember to replace `PROFILE_NAME` with the name of your AWS profile, and to review and approve the IAM permissions for the stack.
 
 ## Best Practices and Security Considerations
 
@@ -309,16 +316,18 @@ AWS Systems Manager Session Manager is a powerful tool that provides the followi
 
 ### Setting Up Permissions for Session Manager
 
-Ensure your EC2 instances have the necessary IAM role with the `AmazonSSMManagedInstanceCore` policy attached. This policy provides the required permissions for the instance to communicate with Systems Manager.
+Ensure your EC2 instances have the necessary IAM role with the `AmazonSSMManagedInstanceCore` policy attached. This policy provides the required permissions for the instance to communicate with Systems Manager. We have created the role and set up the permissions with the code below. In our next lab we will configure an EC2 instance to use this role.
 
 ```typescript
-const role = new iam.Role(this, "SSMRole", {
-  assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-});
+// IAM role for EC2 instance to use SSM
+const role = new Role(this, 'SSMRole', {
+  assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+})
 
+// Attach the AmazonSSMManagedInstanceCore managed policy to the role
 role.addManagedPolicy(
-  iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore")
-);
+  ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
+)
 ```
 
 ## Checkpoint
@@ -329,6 +338,7 @@ At this point, you should have:
 - Created security groups for EC2 and RDS
 - Configured route tables for the subnets
 - Set up a NAT Gateway for the private subnet
+- Created an IAM role for EC2 instances to use SSM
 - Verified the network configuration in the AWS console
 
 If you're encountering issues, check the following:

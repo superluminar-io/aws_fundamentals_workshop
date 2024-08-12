@@ -59,25 +59,16 @@ Amazon Virtual Private Cloud (Amazon VPC) lets you provision a logically isolate
 7. **Document Your Security Groups**:
    - Maintain clear documentation of your security group configurations, including the purpose of each rule and any temporary changes made for troubleshooting.
 
-## Architecture Diagram
+## Next Steps
 
-**Description:**
+After understanding the basics of VPC and security groups, you'll be ready to:
 
-The architecture diagram for this lab illustrates the key components and their interactions within a Virtual Private Cloud (VPC).
+1. Create a VPC for your project
+2. Set up public and private subnets
+3. Configure route tables and internet gateways
+4. Create and configure security groups for your resources
 
-![Placeholder for Architecture Diagram](placeholder-for-architecture-diagram.png)
-
-**Explanation of the Diagram:**
-
-- **VPC**: The outermost box represents the VPC, encompassing all network components.
-- **Public Subnet**: Located within the VPC, connected to the Internet Gateway, and hosting resources like web servers.
-- **Private Subnet**: Also within the VPC, connected to the NAT Gateway, and hosting resources like application servers and databases.
-- **Route Tables**: Indicating how traffic is routed within the VPC. The public subnet's route table includes a route to the Internet Gateway, while the private subnet's route table includes a route to the NAT Gateway.
-- **Security Groups**: Represented as boundaries around individual resources, showing the control of traffic at the instance level. These will include rules to allow or deny specific types of traffic to and from the resources within the VPC.
-- **Internet Gateway**: Shown connecting the VPC to the internet, allowing communication between the public subnet and the outside world.
-- **NAT Gateway**: Depicted in the public subnet, allowing resources in the private subnet to access the internet for updates or external services while maintaining security.
-
-This diagram will help visualize how different components in the VPC interact with each other and how security is enforced at the instance level using security groups.
+In the next section, we'll walk through the process of setting up these components in AWS.
 
 ## Next Steps
 

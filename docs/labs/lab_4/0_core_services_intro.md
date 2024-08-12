@@ -79,7 +79,7 @@ Key features:
 2. **AWS CLI**:
    - To launch an EC2 instance:
      ```bash
-     aws ec2 run-instances --image-id ami-0abcdef1234567890 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0123456789abcdef0 --subnet-id subnet-6e7f829e
+     aws ec2 run-instances --image-id ami-00060fac2f8c42d30 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0eb100f154cb642fb --subnet-id subnet-059de73e7a6c00aa1
      ```
    - To create an S3 bucket:
      ```bash

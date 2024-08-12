@@ -12,7 +12,7 @@ To dive deeper into the topics covered in Lab 5, here are some helpful resources
 
 - [Amazon Aurora User Guide](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html) - Detailed guide on using Amazon Aurora
 - [Aurora Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.BestPractices.html) - Best practices for Aurora databases
-- [Aurora Serverless](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html) - Guide to using Aurora Serverless for auto-scaling
+- [Aurora Serverless](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html) - Guide to using Aurora Serverless for auto-scaling
 
 ## Database Migration
 
@@ -21,8 +21,7 @@ To dive deeper into the topics covered in Lab 5, here are some helpful resources
 
 ## AWS CDK with RDS and Aurora
 
-- [AWS CDK RDS Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-rds-readme.html) - API reference for RDS constructs in CDK
-- [AWS CDK Aurora Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-rds-readme.html#amazon-aurora) - API reference for Aurora constructs in CDK
+- [AWS CDK RDS Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds-readme.html) - API reference for RDS constructs in CDK
 
 ## Database Security
 
@@ -31,8 +30,9 @@ To dive deeper into the topics covered in Lab 5, here are some helpful resources
 
 ## Performance Optimization
 
-- [RDS Performance Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_BestPractices.Performance.html) - Best practices for optimizing RDS performance
-- [Aurora Performance Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.BestPractices.html) - Best practices for optimizing Aurora performance
+- [RDS Tuning Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_BestPractices.html#CHAP_BestPractices.TuningQueries) - Best practices for optimizing RDS queries
+- [Aurora MySQL Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.BestPractices.html) - Best practices for optimizing Aurora MySQL performance
+- [Aurora PostgreSQL Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraPostgreSQL.BestPractices.html) - Best practices for optimizing Aurora PostgreSQL performance
 
 ## Monitoring and Troubleshooting
 

@@ -8,12 +8,6 @@ In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2
 
 For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: FUTURE_LINK
 
-Ensure you have the necessary dependencies:
-
-```bash
-npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
-```
-
 ## Use CDK to Create an S3 Bucket and an EC2 Instance
 
 1. **Open Your CDK Project**
@@ -22,102 +16,162 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
 
 2. **Extend the Stack File**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/my-cdk-app-stack.ts` for a TypeScript project). Add the following code to create an S3 bucket and an EC2 instance:
+   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code to create an S3 bucket and an EC2 instance:
 
-   ```typescript
-   import * as cdk from "aws-cdk-lib";
-   import { Construct } from "constructs";
-   import * as ec2 from "aws-cdk-lib/aws-ec2";
-   import * as s3 from "aws-cdk-lib/aws-s3";
-   import * as iam from "aws-cdk-lib/aws-iam";
+```typescript
+import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
+import {
+  SubnetType,
+  Vpc,
+  SecurityGroup,
+  Peer,
+  Port,
+  Instance,
+  InstanceType,
+  InstanceClass,
+  InstanceSize,
+  MachineImage,
+  UserData,
+} from 'aws-cdk-lib/aws-ec2'
+import {
+  ArnPrincipal,
+  ManagedPolicy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+} from 'aws-cdk-lib/aws-iam'
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
+import { Construct } from 'constructs'
 
-   export class MyCdkAppStack extends cdk.Stack {
-     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-       super(scope, id, props);
+export class AwsFundamentalsWorkshopLabsStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props)
 
-       // Create a VPC
-       const vpc = new ec2.Vpc(this, "MyVpc", {
-         maxAzs: 3,
-         natGateways: 1,
-         subnetConfiguration: [
-           {
-             cidrMask: 24,
-             name: "public",
-             subnetType: ec2.SubnetType.PUBLIC,
-           },
-           {
-             cidrMask: 24,
-             name: "private",
-             subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
-           },
-         ],
-       });
+    // Create a VPC
+    const vpc = new Vpc(this, 'MyVpc', {
+      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: 'public',
+          subnetType: SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: 'private',
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
+        },
+      ],
+    })
 
-       // Security Group for EC2 instance
-       const ec2SecurityGroup = new ec2.SecurityGroup(
-         this,
-         "EC2SecurityGroup",
-         {
-           vpc,
-           allowAllOutbound: true,
-           description: "Allow HTTP access to EC2 instance",
-         }
-       );
-       ec2SecurityGroup.addIngressRule(
-         ec2.Peer.anyIpv4(),
-         ec2.Port.tcp(80),
-         "Allow HTTP access"
-       );
+    // Security Group for EC2 instance
+    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
+      vpc,
+      allowAllOutbound: true,
+      description: 'Allow HTTP access to EC2 instance',
+    })
 
-       // IAM role for EC2 instance to use SSM
-       const role = new iam.Role(this, "SSMRole", {
-         assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-       });
+    // Allow HTTP access to the EC2 instance
+    ec2SecurityGroup.addIngressRule(
+      Peer.anyIpv4(),
+      Port.tcp(80),
+      'Allow HTTP access'
+    )
 
-       role.addManagedPolicy(
-         iam.ManagedPolicy.fromAwsManagedPolicyName(
-           "AmazonSSMManagedInstanceCore"
-         )
-       );
+    // Security Group for RDS instance
+    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
+      vpc,
+      allowAllOutbound: true,
+      description: 'Allow MySQL access to RDS instance',
+    })
+    rdsSecurityGroup.addIngressRule(
+      ec2SecurityGroup,
+      Port.tcp(3306),
+      'Allow MySQL access from EC2 instance'
+    )
 
-       // Create an EC2 instance
-       const ec2Instance = new ec2.Instance(this, "MyEC2Instance", {
-         vpc,
-         instanceType: ec2.InstanceType.of(
-           ec2.InstanceClass.T2,
-           ec2.InstanceSize.MICRO
-         ),
-         machineImage: ec2.MachineImage.latestAmazonLinux2(),
-         securityGroup: ec2SecurityGroup,
-         vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
-         role: role,
-       });
+    // IAM role for EC2 instance to use SSM
+    const role = new Role(this, 'SSMRole', {
+      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
+    })
 
-       // Create an S3 bucket
-       const bucket = new s3.Bucket(this, "MyBucket", {
-         removalPolicy: cdk.RemovalPolicy.DESTROY,
-         autoDeleteObjects: true,
-       });
+    // Attach the AmazonSSMManagedInstanceCore managed policy to the role
+    role.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
+    )
 
-       // Add a bucket policy
-       bucket.addToResourcePolicy(
-         new iam.PolicyStatement({
-           actions: ["s3:GetObject"],
-           resources: [bucket.arnForObjects("*")],
-           principals: [new iam.AnyPrincipal()],
-         })
-       );
+    // Add S3 read permissions to the EC2 instance role
+    role.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess')
+    )
 
-       // Output the bucket name and EC2 instance ID
-       new cdk.CfnOutput(this, "BucketName", {
-         value: bucket.bucketName,
-       });
-       new cdk.CfnOutput(this, "EC2InstanceId", {
-         value: ec2Instance.instanceId,
-       });
-     }
-   }
-   ```
+    // Create an EC2 instance
+    const ec2Instance = new Instance(this, 'MyEC2Instance', {
+      vpc,
+      instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
+      machineImage: MachineImage.latestAmazonLinux2(),
+      securityGroup: ec2SecurityGroup,
+      vpcSubnets: { subnetType: SubnetType.PUBLIC },
+      role: role,
+      userData: UserData.forLinux(),
+    })
+
+    // Install AWS CLI on the EC2 instance
+    ec2Instance.addUserData(
+      'yum update -y',
+      'yum install -y aws-cli',
+      'echo "AWS CLI installed. You can now use AWS S3 commands to test bucket access."'
+    )
+
+    // Create an S3 bucket
+    const bucket = new Bucket(this, 'MyBucket', {
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      publicReadAccess: false, // Ensure the bucket is not publicly accessible
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL, // Block all public access
+    })
+
+    // Add a bucket policy that allows access from the EC2 instance
+    bucket.addToResourcePolicy(
+      new PolicyStatement({
+        actions: [
+          's3:GetObject',
+          's3:ListBucket',
+          's3:PutObject',
+          's3:DeleteObject',
+          's3:DeleteBucket',
+        ],
+        resources: [bucket.bucketArn, bucket.arnForObjects('*')],
+        principals: [new ArnPrincipal(ec2Instance.role.roleArn)],
+      })
+    )
+
+    // Output the bucket name for easy reference
+    new CfnOutput(this, 'BucketName', {
+      value: bucket.bucketName,
+      description: 'Name of the S3 bucket',
+    })
+
+    // Output the EC2 instance ID
+    new CfnOutput(this, 'EC2InstanceId', {
+      value: ec2Instance.instanceId,
+    })
+
+    // Output the Security Group IDs
+    new CfnOutput(this, 'EC2SecurityGroupId', {
+      value: ec2SecurityGroup.securityGroupId,
+    })
+    new CfnOutput(this, 'RDSSecurityGroupId', {
+      value: rdsSecurityGroup.securityGroupId,
+    })
+
+    // Output the VPC ID
+    new CfnOutput(this, 'VpcId', {
+      value: vpc.vpcId,
+    })
+  }
+}
+```
 
 ## Explanation of the Code
 
@@ -136,49 +190,14 @@ npm install @aws-cdk/aws-ec2 @aws-cdk/aws-s3 @aws-cdk/aws-ssm
    cdk deploy --profile PROFILE_NAME
    ```
 
-   This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, EC2 instance, and S3 bucket in your account.
+   This command updates the existing stack, adding the EC2 instance, updating IAM roles to allow access from EC2 to S3, and creating the S3 bucket with its associated bucket policy. The key changes in this update include:
 
-4. **Verify the Deployment**
+   1. Creation of an EC2 instance in the public subnet
+   2. Updating IAM roles to grant the EC2 instance access to S3
+   3. Creation of an S3 bucket
+   4. Addition of a bucket policy allowing access from the EC2 instance
 
-   - **AWS Management Console**:
-
-     - Navigate to the S3 service and find the bucket created by the stack.
-     - Navigate to the EC2 service and find the instance created by the stack.
-
-   - **AWS CLI**:
-     Run the following command to retrieve the instance ID:
-     ```bash
-     aws ec2 describe-instances --filters "Name=tag:Name,Values=MyEC2Instance" --query "Reservations[*].Instances[*].InstanceId" --output text --profile PROFILE_NAME
-     ```
-
-5. **Check CloudWatch**
-
-   - **AWS Management Console**:
-     - Navigate to the CloudWatch service.
-     - Check the logs for the EC2 instance and the S3 bucket to ensure they are operating as expected.
-     - Set up alarms if needed to monitor the health and performance of the resources.
-
-6. **Verify a Bucket Policy**
-
-   - **AWS Management Console**:
-     - Navigate to the S3 service, select the created bucket.
-     - Go to the "Permissions" tab and verify the bucket policy is in place.
-
-   Example of verifying bucket policy:
-
-   ```json
-   {
-     "Version": "2012-10-17",
-     "Statement": [
-       {
-         "Effect": "Allow",
-         "Principal": "*",
-         "Action": "s3:GetObject",
-         "Resource": "arn:aws:s3:::${YOUR_BUCKET_NAME}/*"
-       }
-     ]
-   }
-   ```
+   Review the changes carefully before confirming the deployment. This update will create new resources and modify existing ones to enable the interaction between EC2 and S3.
 
 ## Lab Architecture
 
@@ -193,28 +212,87 @@ This diagram illustrates the key components of our lab:
 3. Security groups controlling inbound and outbound traffic for our EC2 instance.
 4. An S3 bucket for storing objects, with a bucket policy controlling access.
 5. IAM roles and policies managing permissions for the EC2 instance and S3 bucket access.
-6. CloudWatch for monitoring and logging of our EC2 instance and S3 bucket activities.
 
 This architecture demonstrates a secure and scalable setup for core AWS services, allowing us to manage compute resources and object storage while maintaining proper security controls and monitoring capabilities.
 
 Now, let's proceed with verifying the deployment of these resources:
 
-### Connecting to Your EC2 Instance
+1. **Verify the Deployment**
 
-1. **Open the AWS Systems Manager Console**
+   - **AWS Management Console**:
 
-   Go to the AWS Management Console and navigate to the Systems Manager service.
+     - Navigate to the S3 service and find the bucket created by the stack.
+     - Navigate to the EC2 service and find the instance created by the stack.
 
-2. **Navigate to Session Manager**
+   - **Connect to EC2 instance and interact with S3 bucket**:
 
-   In the Systems Manager console, look for Session Manager in the left navigation pane under the "Instances & Nodes" section.
+     1. In the EC2 console, select your instance and click "Connect".
+     2. In the "Connect to instance" dialog, select the "Session Manager" tab and click "Connect".
+     3. Once connected, create a simple HTML file:
+        ```bash
+        cd /tmp
+        echo "<html><body><h1>Hello from EC2</h1></body></html>" > test.html
+        ```
+     4. Upload the file to the S3 bucket:
+        ```bash
+        aws s3 cp test.html s3://BUCKET_NAME/test.html
+        ```
+     5. Verify the object was uploaded:
+        ```bash
+        aws s3 ls s3://BUCKET_NAME
+        ```
 
-3. **Start a Session**
+   - **Web Browser Access Test**:
+     1. In the AWS Management Console, navigate to the S3 service and select your bucket.
+     2. Find the `test.html` file you just uploaded.
+     3. Copy the Object URL of the `test.html` file.
+     4. Open a new tab in your web browser and paste the Object URL.
+     5. You should receive an "Access Denied" error, indicating that the file is not publicly accessible.
 
-   - Select the instance you want to connect to from the list of managed instances.
-   - Click the "Start session" button.
+   This verification process demonstrates that while the EC2 instance can upload files to the S3 bucket, these files are not publicly accessible through a web browser. This showcases the effective use of S3 bucket policies in controlling access to your resources.
 
-   This will open a browser-based shell session to your instance, allowing you to manage it without needing an SSH connection.
+2. **Verify a Bucket Policy**
+
+   - **AWS Management Console**:
+     - Navigate to the S3 service, select the created bucket.
+     - Go to the "Permissions" tab and verify the bucket policy is in place.
+
+   Example of verifying bucket policy:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Principal": {
+           "AWS": "AUTOGENERATED_BY_CDK"
+         },
+         "Action": [
+           "s3:DeleteObject*",
+           "s3:GetBucket*",
+           "s3:List*",
+           "s3:PutBucketPolicy"
+         ],
+         "Resource": ["arn:aws:s3:::BUCKET_NAME", "arn:aws:s3:::BUCKET_NAME/*"]
+       },
+       {
+         "Effect": "Allow",
+         "Principal": {
+           "AWS": "AUTOGENERATED_BY_CDK"
+         },
+         "Action": [
+           "s3:DeleteBucket",
+           "s3:DeleteObject",
+           "s3:GetObject",
+           "s3:ListBucket",
+           "s3:PutObject"
+         ],
+         "Resource": ["arn:aws:s3:::BUCKET_NAME", "arn:aws:s3:::BUCKET_NAME/*"]
+       }
+     ]
+   }
+   ```
 
 ## Checkpoint
 
@@ -223,15 +301,15 @@ At this point, you should have:
 - Created an S3 bucket using CDK
 - Launched an EC2 instance in the public subnet
 - Configured the EC2 instance to use Systems Manager Session Manager
-- Created a CloudWatch alarm for the EC2 instance
 - Successfully connected to the EC2 instance using Session Manager
+- Successfully uploaded a file to the S3 bucket
+- Successfully verified the bucket policy
 
 If you're encountering issues, check the following:
 
 - Verify that the S3 bucket was created successfully
 - Ensure the EC2 instance has the correct IAM role for Systems Manager access
 - Check that the VPC endpoints for Systems Manager are correctly configured
-- Verify that the CloudWatch alarm is set up with the correct metrics
 
 ## Best Practices and Security Considerations
 
@@ -272,27 +350,27 @@ When creating an S3 bucket, consider implementing these security features:
 1. Bucket Policy: Restrict access to your S3 bucket using a bucket policy. Here's an example that allows read access only from a specific IAM role:
 
 ```typescript
-const myBucketPolicy = new s3.BucketPolicy(this, "MyBucketPolicy", {
+const myBucketPolicy = new s3.BucketPolicy(this, 'MyBucketPolicy', {
   bucket: myBucket,
-});
+})
 
 myBucketPolicy.document.addStatements(
   new iam.PolicyStatement({
-    actions: ["s3:GetObject"],
-    resources: [myBucket.arnForObjects("*")],
-    principals: [new iam.ArnPrincipal("arn:aws:iam::123456789012:role/MyRole")],
+    actions: ['s3:GetObject'],
+    resources: [myBucket.arnForObjects('*')],
+    principals: [new iam.ArnPrincipal('arn:aws:iam::123456789012:role/MyRole')],
   })
-);
+)
 ```
 
 2. Versioning: Enable versioning to keep multiple variants of objects in the bucket:
 
 ```typescript
-const myBucket = new s3.Bucket(this, "MyBucket", {
+const myBucket = new s3.Bucket(this, 'MyBucket', {
   versioned: true,
   removalPolicy: cdk.RemovalPolicy.DESTROY,
   autoDeleteObjects: true,
-});
+})
 ```
 
-Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK. You've also verified their configurations and monitored their operations with CloudWatch. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.
+Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK. You've also verified their configurations and interacted with them through the AWS Management Console and Session Manager. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.

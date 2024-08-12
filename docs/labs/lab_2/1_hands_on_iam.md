@@ -94,7 +94,7 @@ import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
 import { Construct } from 'constructs'
 
-export class MyCdkAppStack extends Stack {
+export class AwsFundamentalsWorkshopLabsStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
 
@@ -127,8 +127,8 @@ export class MyCdkAppStack extends Stack {
       runtime: Runtime.NODEJS_LATEST,
       handler: 'index.handler',
       code: Code.fromInline(`
-        const AWS = require('aws-sdk');
-        const s3 = new AWS.S3();
+        const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+        const s3Client = new S3Client();
 
         exports.handler = async function(event) {
           const params = {
@@ -137,11 +137,19 @@ export class MyCdkAppStack extends Stack {
             Body: 'Hello World',
             ContentType: 'text/plain'
           };
-          await s3.putObject(params).promise();
-          return {
-            statusCode: 200,
-            body: 'File written!'
-          };
+          try {
+            await s3Client.send(new PutObjectCommand(params));
+            return {
+              statusCode: 200,
+              body: 'File written!'
+            };
+          } catch (error) {
+            console.error('Error:', error);
+            return {
+              statusCode: 500,
+              body: 'Error writing file'
+            };
+          }
         }
       `),
       environment: {
@@ -201,12 +209,19 @@ This deployment will succeed, but the Lambda function doesn't have the necessary
    b. Use the following AWS CLI command to invoke the Lambda function:
 
 ```bash
-aws lambda invoke --function-name FUNCTION_NAME --payload '{}' --cli-binary-format raw-in-base64-out response.json --profile PROFILE_NAME
+aws lambda invoke \
+    --function-name FUNCTION_NAME \
+    --payload '{}' \
+    --cli-binary-format raw-in-base64-out \
+    --profile PROFILE_NAME \
+    --query 'Payload' \
+    --output text \
+    /dev/stdout
 ```
 
-Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS Console or from the CDK output.
+Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS CloudFormation Console or from the CDK output. Don't forget to also replace `PROFILE_NAME` with your profile.
 
-c. Check the `response.json` file for the function's response. You should see an error message indicating an access denied error for the S3 PutObject action.
+c. Check the terminal for the function's response. You should see an error message indicating a 500 error for the S3 PutObject action. `"Error writing file"`
 
 This error occurs because the Lambda function is trying to write to the S3 bucket, but the current IAM policy only allows reading from the bucket, not writing to it.
 
@@ -237,21 +252,24 @@ Deploy the stack again with the correct permissions:
 cdk deploy --profile PROFILE_NAME
 ```
 
-This deployment will succeed, and the Lambda function will now have the necessary permissions to write the "Hello World" file to the S3 bucket. To verify this, let's manually invoke the Lambda function again:
+This deployment will update permissions as you'll see in your terminal, enter `y` to confirm the changes, and the Lambda function will now have the necessary permissions to write the "Hello World" file to the S3 bucket. To verify this, let's invoke the Lambda function again:
 
 a. Use the AWS CLI command to invoke the Lambda function:
 
 ```bash
-aws lambda invoke --function-name FUNCTION_NAME --payload '{}' --cli-binary-format raw-in-base64-out response.json --profile PROFILE_NAME
+aws lambda invoke \
+    --function-name FUNCTION_NAME \
+    --payload '{}' \
+    --cli-binary-format raw-in-base64-out \
+    --profile PROFILE_NAME \
+    --query 'Payload' \
+    --output text \
+    /dev/stdout
 ```
 
-Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS Console or from the CDK output.
+Replace `FUNCTION_NAME` with the name or ARN of your Lambda function and `PROFILE_NAME` with your profile. You can find the function name in the AWS CloudFormation Console or from the CDK output.
 
-Now response.json should show:
-
-```json
-{ "statusCode": 200, "body": "File written!" }
-```
+Now you should see a 200 message: `"File written!"`
 
 6. **Verify the Deployment**
 

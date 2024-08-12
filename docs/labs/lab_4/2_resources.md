@@ -4,9 +4,9 @@ To dive deeper into the topics covered in Lab 4, here are some helpful resources
 
 ## Amazon S3 (Simple Storage Service)
 
-- [Amazon S3 Developer Guide](https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html) - Comprehensive guide to using Amazon S3
-- [S3 Best Practices](https://aws.amazon.com/blogs/aws/amazon-s3-best-practices/) - AWS recommended best practices for S3
-- [S3 Security Best Practices](https://docs.aws.amazon.com/AmazonS3/latest/dev/security-best-practices.html) - Security best practices for S3
+- [Amazon S3 User Guide](https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html) - Comprehensive guide to using Amazon S3
+- [S3 Best Practices Design Patterns](https://docs.aws.amazon.com/AmazonS3/latest/userguide/optimizing-performance.html) - AWS recommended best practices for S3
+- [S3 Security Best Practices](https://docs.aws.amazon.com/AmazonS3/latest/userguide/security-best-practices.html) - Security best practices for S3
 
 ## Amazon EC2 (Elastic Compute Cloud)
 
