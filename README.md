@@ -31,8 +31,8 @@ Each lab includes step-by-step instructions and practical exercises using AWS CD
 1. Clone this repository to your local machine:
 
    ```sh
-   git clone https://github.com/superluminar-io/serverless-workshop.git
-   cd serverless-workshop
+   git clone --depth 1 https://github.com/superluminar-io/aws_fundamentals_workshop_labs.git
+   cd aws_fundamentals_workshop_labs
    ```
 
 2. Install project dependencies:
