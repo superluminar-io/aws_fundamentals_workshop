@@ -69,14 +69,3 @@ After understanding the basics of VPC and security groups, you'll be ready to:
 4. Create and configure security groups for your resources
 
 In the next section, we'll walk through the process of setting up these components in AWS.
-
-## Next Steps
-
-After understanding the basics of VPC and security groups, you'll be ready to:
-
-1. Create a VPC for your project
-2. Set up public and private subnets
-3. Configure route tables and internet gateways
-4. Create and configure security groups for your resources
-
-In the next section, we'll walk through the process of setting up these components in AWS.

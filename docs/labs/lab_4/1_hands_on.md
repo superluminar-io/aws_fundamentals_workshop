@@ -203,7 +203,7 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
 
 Before we proceed with verifying the deployment, let's take a moment to review the architecture we've built in this lab:
 
-![Core Services Lab Architecture](media/lab_4_arch.drawio.svg)
+![Core Services Lab Architecture](../../media/lab_4_arch.drawio.svg)
 
 This diagram illustrates the key components of our lab:
 
