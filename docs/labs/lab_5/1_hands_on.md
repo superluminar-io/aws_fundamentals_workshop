@@ -6,7 +6,7 @@ In this hands-on section, you will extend the existing CDK project from the prev
 
 ## Prerequisites
 
-For this lab, continue with the stack you created in Labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: FUTURE_LINK
+For this lab, continue with the stack you created in Labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: [Lab 4 Stack](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_4/lib/aws-fundamentals-workshop-labs-stack.ts)
 
 ## Create an RDS Instance with CDK
 

@@ -6,7 +6,7 @@ In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2
 
 ## Prerequisites
 
-For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: FUTURE_LINK
+For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: [Lab 3 Stack](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_3/lib/aws-fundamentals-workshop-labs-stack.ts)
 
 ## Use CDK to Create an S3 Bucket and an EC2 Instance
 
