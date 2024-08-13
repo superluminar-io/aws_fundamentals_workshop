@@ -23,7 +23,7 @@ Each lab includes step-by-step instructions and practical exercises using AWS CD
 
 - Basic understanding of programming concepts
 - Familiarity with command-line interfaces
-- AWS account (free tier is sufficient)
+- AWS account (most resources are free tier, some small costs may apply)
 - Node.js and npm installed
 
 ## Installation and Setup
@@ -67,10 +67,29 @@ The total estimated time for completing all labs is 4-5 hours.
 - Each lab contains an "Additional Resources" section for further learning.
 - After completing the workshop, refer to `docs/2_next.md` for suggested next steps in your AWS learning journey.
 
-## Contributing
+## Deploying to S3 with CloudFront
 
-If you find any issues or have suggestions for improvements, please open an issue or submit a pull request. For more details on contributing, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+To deploy this workshop documentation to an S3 bucket and serve it via CloudFront, follow these steps:
 
-## License
+1. **Build the documentation**:
+   Run the following command to build the documentation:
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+   ```sh
+   npm run build
+   ```
+
+   This will create a `build` directory with the static files.
+
+2. **Create an S3 bucket**:
+   Create an S3 bucket to host your static files. Make sure to enable static website hosting for the bucket.
+
+3. **Upload files to S3**:
+   Upload the contents of the `build` directory to your S3 bucket.
+
+4. **Create a CloudFront distribution**:
+   Create a CloudFront distribution with the S3 bucket as the origin.
+
+5. **Update DNS (optional)**:
+   If you're using a custom domain, update your DNS settings to point to the CloudFront distribution.
+
+After deployment, the workshop documentation will be available via the CloudFront distribution URL.
