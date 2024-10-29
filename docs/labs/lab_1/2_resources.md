@@ -2,12 +2,10 @@
 
 To dive deeper into the topics covered in Lab 1, here are some helpful resources:
 
-## AWS CDK
+## AWS Pulumi
 
-- [AWS CDK Developer Guide](https://docs.aws.amazon.com/cdk/v2/guide/home.html) - Official comprehensive guide to using AWS CDK
-- [AWS CDK Workshop](https://cdkworkshop.com/) - Hands-on tutorial to learn CDK concepts
-- [AWS CDK API Reference](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html) - Detailed API documentation for CDK constructs
-- [AWS CDK Examples](https://github.com/aws-samples/aws-cdk-examples) - Repository of CDK code examples
+- [Pulumi Docs](https://www.pulumi.com/docs/iac/) - Official comprehensive guide to using Pulumi IaC
+- [Pulumi IaC Workshop](https://pulumi.awsworkshop.io/) - Hands-on tutorial to learn Pulumi with AWS
 
 ## TypeScript
 

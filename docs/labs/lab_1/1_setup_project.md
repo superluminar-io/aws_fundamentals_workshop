@@ -1,10 +1,10 @@
-# Lab 1: Introduction to AWS CDK
+# Lab 1: Introduction to Pulumi
 
-This lab introduces you to AWS CDK (Cloud Development Kit) and guides you through setting up your initial project environment. You'll learn how to install the CDK toolkit, create a new project, and deploy a simple stack.
+This lab introduces you to Pulumi and guides you through setting up your initial project environment. You'll learn how to install Pulumi, create a new project, and deploy a simple stack.
 
 ## Configure AWS Credentials with IAM Identity Center
 
-Before you can use AWS CDK, you need to set up your AWS credentials. For this workshop, we'll assume you're using AWS IAM Identity Center (formerly AWS SSO) to access your AWS account. Follow these steps to configure your credentials:
+Before you can use Pulumi, you need to set up your AWS credentials. For this workshop, we'll assume you're using AWS IAM Identity Center (formerly AWS SSO) to access your AWS account. Follow these steps to configure your credentials:
 
 If you're not using IAM Identity Center, you can find instructions for configuring standard IAM user credentials in the [AWS documentation](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_prerequisites).
 
@@ -42,231 +42,149 @@ aws sts get-caller-identity --profile PROFILE_NAME
 
 This should display your AWS account ID, user ID, and ARN.
 
-With these credentials set up, you're now ready to use AWS CDK with your company's AWS account.
+With these credentials set up, you're now ready to use Pulumi with your company's AWS account.
 
-## Set up the Initial Project Environment Using CDK
+## Set up the Initial Project Environment Using Pulumi
 
-**Install AWS CDK and Set Up a New CDK Project**
+**Install Pulumi and Set Up a New Project**
 
-To get started with AWS CDK, you need to install the AWS CDK Toolkit and set up a new CDK project. Follow these steps to set up your initial project environment:
+To get started with Pulumi, you need to install Pulumi and set up a new project. Follow these steps:
 
-1. **Install the AWS CDK Toolkit**:
-   If you haven't already installed the AWS CDK Toolkit, you can do so using npm. Open your terminal and run the following command:
-
-```bash
-npm install -g aws-cdk
-```
-
-This command installs the CDK Toolkit globally on your machine, making the `cdk` command available from any directory.
-
-To verify the installation, run:
+1. **Install Pulumi**:
+   Install Pulumi by following the [official installation guide](https://www.pulumi.com/docs/install/) for your operating system:
 
 ```bash
-cdk --version
+# macOS
+brew install pulumi
+
+# Windows
+choco install pulumi
+
+# Linux
+curl -fsSL https://get.pulumi.com | sh
 ```
 
-This command installs the CDK Toolkit globally on your machine, making the `cdk` command available from any directory.
-
-To verify the installation, run:
+Verify the installation:
 
 ```bash
-cdk --version
+pulumi version
 ```
 
-2. **Bootstrap your AWS account**:
-   Before you can deploy CDK applications, you need to bootstrap your AWS account. This process creates the necessary resources in your account to support CDK deployments. Run the following command:
+
+2. **Create the state backend**:
+Go to the aws console and create a new s3 bucket which will be used as the state backend.
+
+To do so, go to the AWS console, navigate to S3, click on "Create bucket", and follow the steps to create a new bucket (default settings are fine).
+
+3. **Login to Pulumi**:
+   You'll need to login to Pulumi to store your state.
 
 ```bash
-cdk bootstrap --profile PROFILE_NAME
+pulumi login s3://YOUR_BUCKET_NAME
 ```
 
-This command sets up an S3 bucket and other resources needed for CDK deployments in your account.
-
-3. **Create a New CDK Project**:
-   Navigate to the directory where you want to create your new CDK project. We'll name our project `aws-fundamentals-workshop-labs`. Run the following commands to create a folder, navigate inside and initialize a new CDK application:
-
-```bash
-mkdir aws-fundamentals-workshop-labs
-cd aws-fundamentals-workshop-labs
-cdk init app --language=typescript
-```
-
-This command sets up a new CDK project with a basic directory structure and necessary configuration files.
-
-4. **Create a New CDK Project**:
-   Navigate to the directory where you want to create your new CDK project. We'll name our project `aws-fundamentals-workshop-labs`. Run the following commands to create a folder, navigate inside and initialize a new CDK application:
+4. **Create a New Pulumi Project**:
+   Navigate to where you want to create your project and run:
 
 ```bash
 mkdir aws-fundamentals-workshop-labs
 cd aws-fundamentals-workshop-labs
-cdk init app --language=typescript
+pulumi new aws-typescript
 ```
 
-This command sets up a new CDK project with a basic directory structure and necessary configuration files.
+Follow the prompts to configure your project:
+- Choose a project name
+- Choose a project description
+- Choose a stack name (dev is default)
+- Passphrase to protect config/secrets (leave blank)
+- Choose a package manager
+- Choose the region
 
-## Lab Architecture
+## Exploring the Pulumi Project Structure
 
-Before we proceed, let's take a look at the architecture we'll be building in this lab:
+After initializing your Pulumi project, let's explore the key files:
 
-![Initial Setup Lab Architecture](../../media/lab_1_arch.drawio.svg)
+1. **`index.ts`**:
+   - The main program file where you define your infrastructure
+   - Contains your resource definitions and exports
 
-This diagram illustrates the key components of our lab:
+2. **`package.json`**:
+   - Defines project dependencies and scripts
+   - Contains TypeScript and AWS SDK dependencies
 
-1. A CDK application that defines our infrastructure as code.
-2. A CloudFormation stack that will be generated from our CDK code.
-3. A simple CloudFormation output that we'll create to verify our setup.
+3. **`Pulumi.yaml`**:
+   - The project configuration file
+   - Defines project settings, runtime and metadata (name, description, etc.)
 
-This basic architecture allows us to demonstrate the CDK deployment process and ensure our environment is correctly set up for the subsequent labs.
+4. **`Pulumi.dev.yaml`**:
+   - Stack-specific configuration
+   - Contains environment-specific settings
 
-## Exploring the CDK Project Structure
+5. **`tsconfig.json`**:
+   - TypeScript configuration file
 
-After initializing your CDK project, let's take a quick tour of the files and directories created by the `cdk init app` command:
+## Create a simple output
 
-1. **`bin/` directory**:
+1. **Edit the Main Program File**:
+   Replace the contents of `index.ts` with:
 
-   - Contains the entry point for your CDK application.
-   - The main file (e.g., `aws-fundamentals-workshop-labs.ts` for TypeScript) defines the CDK app and instantiates the stack(s).
+```typescript:index.ts
+import * as pulumi from "@pulumi/pulumi";
 
-2. **`lib/` directory**:
-
-   - Contains the stack definition(s) for your CDK application.
-   - The main stack file (e.g., `aws-fundamentals-workshop-labs-stack.ts` for TypeScript) is where you'll define your AWS resources.
-
-3. **`package.json`** (for TypeScript/JavaScript projects):
-
-   - Defines project metadata and dependencies.
-   - Contains scripts for building, testing, and deploying your CDK app.
-
-4. **`cdk.json`**:
-
-   - Tells the CDK Toolkit how to execute your app.
-   - Specifies the app's entry point and other configuration options.
-
-5. **`tsconfig.json`** (for TypeScript projects):
-
-   - Contains TypeScript compiler configuration.
-
-6. **`jest.config.js`** (if testing is set up):
-
-   - Configuration file for Jest, the testing framework.
-
-7. **`README.md`**:
-
-   - Contains basic information about the project and how to use it.
-
-8. **`.gitignore`**:
-   - Specifies files and directories that Git should ignore.
-
-This structure provides a solid foundation for developing your CDK application, with clear separation of concerns between the app definition, stack implementation, and project configuration.
-
-## Create a Basic Stack with a CloudFormation Output
-
-After setting up the project and configuring SSO, you can define your first stack. A stack in CDK is a collection of AWS resources that you manage as a single unit. Follow these steps to create a basic stack that outputs a simple message:
-
-1. **Open the Stack File**:
-   Open the stack file located in the `lib` directory. The stack file is named based on your project name, for example, `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project.
-
-2. **Define a CloudFormation Output**:
-   Edit the stack file to define a CloudFormation output. First, delete the default comment and import at the top of the file. Then, add the CloudFormation output. Below is an example of a basic stack that creates a CloudFormation output using TypeScript:
-
-```typescript
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib'
-import { Construct } from 'constructs'
-
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
-    // Resources go here
-    new CfnOutput(this, 'MyOutput', {
-      value: 'Hello, CDK!',
-      description: 'A simple CloudFormation output to prove the setup works',
-    })
-  }
-}
+// Create a stack output
+export const message = "Hello, Pulumi!";
 ```
 
-3. **Deploy the Stack**:
-   To deploy the stack to your AWS account, run the following command from the root directory of your CDK project:
+2. **Deploy the Stack**:
+   Deploy your stack using:
 
 ```bash
-cdk deploy --profile PROFILE_NAME
+pulumi up
 ```
 
-This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified CloudFormation output in your account.
+You'll see a preview of the changes and be prompted to confirm. After deployment, you'll see output similar to:
 
-After the deployment is complete, you should see a success message in your terminal. Here's an example of what you might see:
+![Pulumi Deploy Success](../../media/lab_1_pulumi_success.png)
 
-![CDK Deploy Success](../../media/lab_1_cdk_success.png)
+3. **Verify the Output**:
+   You can view your stack's outputs using:
 
-Let's break down the information displayed in this output:
-
-- **Synthesis time**: This is how long it took CDK to synthesize the CloudFormation template from your CDK code.
-- **Building and Publishing**: These steps show CDK preparing and uploading assets (if any) to S3.
-- **Deployment time**: This indicates how long it took to deploy your stack to AWS.
-- **Outputs**: This section shows any outputs defined in your stack. In this case, we see our "Hello, CDK!" message.
-- **Stack ARN**: This is the unique Amazon Resource Name (ARN) for your deployed CloudFormation stack.
-- **Total time**: This is the overall time taken for the entire deploy process.
-
-This output confirms that your stack was successfully deployed and provides key information about the deployment process and the resulting resources.
-
-4. **Verify the Deployment**:
-   After the deployment is complete, you can verify the CloudFormation output using the AWS Management Console:
-   - Open the AWS Management Console.
-   - Navigate to the CloudFormation service. (Type cfn in the search bar to quickly jump to it.)
-   - Find and select the stack you just deployed.
-   - In the stack details, go to the "Outputs" tab to see the output value "Hello, CDK!".
+```bash
+pulumi stack output
+```
 
 ## Checkpoint
 
 At this point, you should have:
-
-- Installed the AWS CDK Toolkit
-- Created a new CDK project
-- Defined a basic stack with a CloudFormation output
-- Successfully deployed the stack using `cdk deploy`
-- Verified the output in the AWS CloudFormation console
-
-If you're encountering issues, check the following:
-
-- Ensure Node.js and npm are correctly installed and in your PATH
-- Verify that you have the latest version of AWS CDK installed
-- Check that your AWS credentials are properly configured
-- Make sure you have the necessary permissions to create CloudFormation stacks
+- Installed Pulumi
+- Created a new Pulumi project
+- Defined a basic stack with an output
+- Successfully deployed using `pulumi up`
+- Verified the output
 
 ## Best Practices and Security Considerations
 
-1. Regularly update your CDK version to benefit from the latest features and security improvements.
-2. Use version control (like Git) to track changes to your CDK code.
-3. Implement the principle of least privilege when defining IAM roles and policies.
-4. Use CDK's built-in security checks to identify potential security issues in your infrastructure.
+1. Use Pulumi's built-in secret management for sensitive values (e.g. use a kms key to encrypt secret values by [changing the secrets provider](https://www.pulumi.com/docs/iac/cli/commands/pulumi_stack_change-secrets-provider/) and [adding a secret value](https://www.pulumi.com/docs/iac/concepts/secrets/).
+2. Follow the principle of least privilege for AWS credentials
+3. Use version control for your infrastructure code
 
 ## Reset the Stack for the Next Lab
 
-To ensure the environment is clean for the next lab, follow these steps to delete the stack and clean up your project:
+To clean up:
 
-1. **Delete the Stack**:
-   To delete the stack from your AWS account, run the following command from the root directory of your CDK project:
-
+1. **Destroy the Stack**:
 ```bash
-cdk destroy --profile PROFILE_NAME
+pulumi destroy
 ```
 
-Confirm the deletion when prompted. This command removes all the resources defined in your stack from your AWS account.
+2. **Clean Up the Program File**:
+   Reset `index.ts` to a clean state:
 
-2. **Clean Up the Stack File**:
-   Open the stack file in the `lib` directory and remove the code you added. Your stack file should look like this after cleaning up:
+```typescript:index.ts
+import * as pulumi from "@pulumi/pulumi";
+import * as aws from "@pulumi/aws";
 
-```typescript
-import { Stack, StackProps } from 'aws-cdk-lib'
-import { Construct } from 'constructs'
-
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
-
-    // The stack is empty for the next lab
-  }
-}
+// The stack is empty for the next lab
 ```
 
-Great work! You've set up your initial project environment using AWS CDK, deployed a basic stack, and cleaned up the environment for the next lab. This process has given you a strong starting point for building more complex cloud applications with AWS CDK.
+Great work! You've set up your initial project environment using Pulumi, deployed a basic project, and cleaned up the environment for the next lab.
