@@ -1,6 +1,6 @@
 # Additional Resources for Lab 3
 
-This document provides a curated list of resources to supplement your learning from Lab 3, covering topics such as AWS CloudFormation, Infrastructure as Code (IaC), AWS Systems Manager, and secure instance access.
+This document provides a curated list of resources to supplement your learning from Lab 3, covering topics such as Infrastructure as Code (IaC), AWS Systems Manager, and secure instance access.
 
 ## AWS Services
 
