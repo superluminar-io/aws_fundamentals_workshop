@@ -2,7 +2,7 @@
 - [Core Concepts](/1_core_concepts)
 - Labs
   - Lab 1
-    - [Intro to CDK](/labs/lab_1/0_cdk_intro)
+    - [Intro to Pulumi](/labs/lab_1/0_pulumi_intro)
     - [Hands On](labs/lab_1/1_setup_project)
     - [Resources](labs/lab_1/2_resources)
   - Lab 2
