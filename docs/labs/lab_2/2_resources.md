@@ -8,10 +8,6 @@ To dive deeper into the topics covered in Lab 2, here are some helpful resources
 - [IAM Best Practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html) - AWS recommended best practices for IAM
 - [IAM Policy Simulator](https://policysim.aws.amazon.com/) - Tool to test and troubleshoot IAM policies
 
-## AWS CDK IAM Constructs
-
-- [AWS CDK IAM Module Documentation](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_iam-readme.html) - Detailed API reference for IAM constructs in CDK
-
 ## Security Best Practices
 
 - [AWS Security Best Practices](https://aws.amazon.com/architecture/security-identity-compliance/) - Comprehensive guide to AWS security best practices

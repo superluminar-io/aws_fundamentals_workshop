@@ -4,7 +4,7 @@
 
 AWS Identity and Access Management (IAM) is a web service that helps you securely control access to AWS resources. With IAM, you can centrally manage users, security credentials such as access keys, and permissions that control which AWS resources users and applications can access.
 
-## Set up IAM Roles and Policies Using CDK
+## Set up IAM Roles and Policies Using Pulumi
 
 In this hands-on section, you will create an S3 bucket with a destroy policy, a Lambda function that writes a "Hello World" file to the bucket, and IAM roles and policies to manage permissions. This exercise will guide you through defining IAM roles and policies in code, deploying them to your AWS account, and verifying the setup.
 
@@ -80,123 +80,106 @@ We'll start by creating these resources with incorrect permissions, then we'll f
 
 1. **Create an S3 Bucket and Lambda Function with Incorrect Permissions**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/my-cdk-app-stack.ts` for a TypeScript project). Add the following code:
+   Open the index file (e.g., `my-project/index.ts` for a TypeScript project). Add the following code:
 
 ```typescript
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
-import {
-  Policy,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda'
-import { Bucket } from 'aws-cdk-lib/aws-s3'
-import { Construct } from 'constructs'
+import * as pulumi from "@pulumi/pulumi";
+import * as aws from "@pulumi/aws";
 
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
+// Create an S3 bucket with force destroy enabled
+const bucket = new aws.s3.Bucket("myBucket", {
+    forceDestroy: true,
+});
 
-    // Create an S3 bucket with a destroy policy
-    const bucket = new Bucket(this, 'MyBucket', {
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-    })
+// Define the Lambda assume role policy
+const assumeRole = aws.iam.getPolicyDocumentOutput({
+    statements: [{
+        effect: "Allow",
+        principals: [{
+            type: "Service",
+            identifiers: ["lambda.amazonaws.com"],
+        }],
+        actions: ["sts:AssumeRole"],
+    }],
+});
 
-    // Define an IAM Role for Lambda
-    const lambdaRole = new Role(this, 'LambdaRole', {
-      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-    })
+// Create the Lambda role
+const lambdaRole = new aws.iam.Role("lambdaRole", {
+    assumeRolePolicy: assumeRole.json,
+});
 
-    // Incorrect IAM Policy (missing s3:PutObject permission)
-    const incorrectPolicy = new Policy(this, 'IncorrectPolicy', {
-      statements: [
-        new PolicyStatement({
-          actions: ['s3:GetObject'],
-          resources: [bucket.bucketArn + '/*'],
-        }),
-      ],
-    })
+// Create the incorrect S3 policy (missing PutObject)
+const incorrectPolicy = new aws.iam.RolePolicy("incorrectPolicy", {
+    role: lambdaRole.id,
+    policy: bucket.arn.apply(bucketArn => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Action: ["s3:GetObject"],
+            Resource: `${bucketArn}/*`,
+        }],
+    })),
+});
 
-    // Attach the incorrect policy to the Lambda role
-    lambdaRole.attachInlinePolicy(incorrectPolicy)
+// Create Lambda function
+const lambdaFunction = new aws.lambda.Function("myLambda", {
+    runtime: "nodejs20.x",
+    role: lambdaRole.arn,
+    handler: "index.handler",
+    code: new pulumi.asset.AssetArchive({
+        "index.js": new pulumi.asset.StringAsset(`
+            const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+            const s3Client = new S3Client();
 
-    // Create a Lambda function with inline code
-    const lambdaFunction = new Function(this, 'MyLambda', {
-      runtime: Runtime.NODEJS_LATEST,
-      handler: 'index.handler',
-      code: Code.fromInline(`
-        const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-        const s3Client = new S3Client();
+            exports.handler = async function(event) {
+                const params = {
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: 'hello.txt',
+                    Body: 'Hello World',
+                    ContentType: 'text/plain'
+                };
+                try {
+                    await s3Client.send(new PutObjectCommand(params));
+                    return {
+                        statusCode: 200,
+                        body: 'File written!'
+                    };
+                } catch (error) {
+                    console.error('Error:', error);
+                    return {
+                        statusCode: 500,
+                        body: 'Error writing file'
+                    };
+                }
+            }
+        `),
+    }),
+    environment: {
+        variables: {
+            BUCKET_NAME: bucket.id,
+        },
+    },
+});
 
-        exports.handler = async function(event) {
-          const params = {
-            Bucket: process.env.BUCKET_NAME,
-            Key: 'hello.txt',
-            Body: 'Hello World',
-            ContentType: 'text/plain'
-          };
-          try {
-            await s3Client.send(new PutObjectCommand(params));
-            return {
-              statusCode: 200,
-              body: 'File written!'
-            };
-          } catch (error) {
-            console.error('Error:', error);
-            return {
-              statusCode: 500,
-              body: 'Error writing file'
-            };
-          }
-        }
-      `),
-      environment: {
-        BUCKET_NAME: bucket.bucketName,
-      },
-      role: lambdaRole,
-    })
-
-    // Output the Lambda function name
-    new CfnOutput(this, 'LambdaFunctionName', {
-      value: lambdaFunction.functionName,
-    })
-
-    // Output the bucket name
-    new CfnOutput(this, 'BucketName', {
-      value: bucket.bucketName,
-    })
-
-    // Output the Lambda function ARN
-    new CfnOutput(this, 'LambdaArn', {
-      value: lambdaFunction.functionArn,
-    })
-  }
-}
+// Export the values
+export const functionName = lambdaFunction.name;
+export const bucketName = bucket.id;
+export const functionArn = lambdaFunction.arn;
 ```
 
-2. **Deploy the Stack with Incorrect Permissions**
+2. **Deploy the project with Incorrect Permissions**
 
-   Deploy the stack:
+   Deploy the project:
 
 ```bash
-cdk deploy --profile PROFILE_NAME
+pulumi up
 ```
 
-![CDK IAM Confirmation](../../media/lab_2_confirm_iam.png)
+![Pulumi change confirmation](../../media/lab_2_pulumi_confirm.png)
 
-When deploying a CDK stack that includes IAM resources, CDK will prompt for confirmation before making potentially sensitive changes. This is a security feature to prevent unintended modifications to IAM permissions. The image above shows an example of this confirmation prompt.
+When deploying a pulumi project, pulumi will always prompt for confirmation before making any changes. This is a security feature to prevent unintended modifications. The image above shows an example of this confirmation prompt.
 
-In this prompt, CDK provides a detailed breakdown of the IAM changes that will be made:
-
-1. IAM Statement Changes: This section shows the new permissions that will be added, including which services can assume roles and what actions are allowed on which resources.
-
-2. IAM Policy Changes: This part lists any managed policies that will be attached to IAM roles.
-
-CDK requires explicit approval for these changes due to their potential security implications. This gives you an opportunity to review the permissions before they are applied, ensuring that you're not inadvertently granting more access than intended.
-
-Always carefully review these changes before confirming. If you're unsure about any of the permissions being granted, it's best to double-check your CDK code or consult with your team before proceeding.
+Always carefully review these changes before confirming. If you're unsure about the changes, it's best to double-check your code or consult with your team before proceeding.
 
 This deployment will succeed, but the Lambda function doesn't have the necessary `s3:PutObject` permission to write to the S3 bucket. To see this in action, we need to manually invoke the Lambda function:
 
@@ -227,32 +210,35 @@ This error occurs because the Lambda function is trying to write to the S3 bucke
 
 1. **Update the IAM Policy with Correct Permissions**
 
-   Update the stack file to correct the IAM policy by adding the `s3:PutObject` permission:
+   Update the index file to correct the IAM policy by adding the `s3:PutObject` permission:
 
 ```typescript
 // Correct IAM Policy
-const correctPolicy = new Policy(this, 'CorrectPolicy', {
-  statements: [
-    new PolicyStatement({
-      actions: ['s3:GetObject', 's3:PutObject'],
-      resources: [bucket.bucketArn + '/*'],
-    }),
-  ],
-})
-
-// Attach the correct policy to the Lambda role
-lambdaRole.attachInlinePolicy(correctPolicy)
+const correctPolicy = new aws.iam.RolePolicy("correctPolicy", {
+    role: lambdaRole.id,
+    policy: bucket.arn.apply(bucketArn => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Action: [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            Resource: `${bucketArn}/*`,
+        }],
+    })),
+});
 ```
 
-5. **Deploy the Stack with Correct Permissions**
+5. **Deploy the project with Correct Permissions**
 
-Deploy the stack again with the correct permissions:
+Deploy the project again with the correct permissions:
 
 ```bash
-cdk deploy --profile PROFILE_NAME
+pulumi up
 ```
 
-This deployment will update permissions as you'll see in your terminal, enter `y` to confirm the changes, and the Lambda function will now have the necessary permissions to write the "Hello World" file to the S3 bucket. To verify this, let's invoke the Lambda function again:
+This deployment will update the permissions as you'll see in your terminal, choose `yes` to confirm the changes, and the Lambda function will now have the necessary permissions to write the "Hello World" file to the S3 bucket. To verify this, let's invoke the Lambda function again:
 
 a. Use the AWS CLI command to invoke the Lambda function:
 
@@ -267,7 +253,7 @@ aws lambda invoke \
     /dev/stdout
 ```
 
-Replace `FUNCTION_NAME` with the name or ARN of your Lambda function and `PROFILE_NAME` with your profile. You can find the function name in the AWS CloudFormation Console or from the CDK output.
+Replace `FUNCTION_NAME` with the name or ARN of your Lambda function and `PROFILE_NAME` with your profile. You can find the function name in the Lambda Console or from the pulumi output.
 
 Now you should see a 200 message: `"File written!"`
 
@@ -304,33 +290,25 @@ If you're encountering issues, check the following:
 - Check the Lambda function's execution role to make sure it's using the correct IAM role
 - Ensure the S3 bucket exists and you have the correct bucket name in your code
 
-## Reset the Stack for the Next Lab
+## Reset the index.ts for the Next Lab
 
 To ensure the environment is clean for the next lab, follow these steps to delete the stack and clean up your project:
 
-1. **Delete the Stack**:
-   To delete the stack from your AWS account, run the following command from the root directory of your CDK project:
+1. **Destroy the project**:
+   To delete the resources from your AWS account, run the following command:
 
 ```bash
-cdk destroy --profile PROFILE_NAME
+pulumi destroy
 ```
 
-Confirm the deletion when prompted. This command removes all the resources defined in your stack from your AWS account.
+Confirm the deletion when prompted. This command removes all the resources defined in your `index.ts` from your AWS account.
 
-2. **Clean Up the Stack File**:
-   Open the stack file in the `lib` directory and remove the code you added. Your stack file should look like this after cleaning up:
+2. **Clean Up the index.ts File**:
+   Open the `index.ts` file and remove the code you added. Your file should look like this after cleaning up:
 
 ```typescript
-import { Stack, StackProps } from 'aws-cdk-lib'
-import { Construct } from 'constructs'
-
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
-
-    // Stack is empty for the next lab
-  }
-}
+import * as pulumi from "@pulumi/pulumi";
+import * as aws from "@pulumi/aws";
 ```
 
-Well done! You've navigated through creating and managing IAM roles and policies using AWS CDK, explored how permissions affect resource access, and confirmed the setup by writing a file to an S3 bucket with a Lambda function. Your environment is now prepared for the next lab.
+Well done! You've navigated through creating and managing IAM roles and policies using Pulumi, explored how permissions affect resource access, and confirmed the setup by writing a file to an S3 bucket with a Lambda function. Your environment is now prepared for the next lab.
