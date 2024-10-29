@@ -128,7 +128,7 @@ After initializing your Pulumi project, let's explore the key files:
 1. **Edit the Main Program File**:
    Replace the contents of `index.ts` with:
 
-```typescript:index.ts
+```typescript
 import * as pulumi from "@pulumi/pulumi";
 
 // Create a stack output
@@ -180,7 +180,7 @@ pulumi destroy
 2. **Clean Up the Program File**:
    Reset `index.ts` to a clean state:
 
-```typescript:index.ts
+```typescript
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 
