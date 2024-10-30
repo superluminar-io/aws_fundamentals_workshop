@@ -1,176 +1,216 @@
 # Lab 4: Core AWS Services
 
-## Deploy Core Services Using CDK
+## Deploy Core Services Using Pulumi
 
-In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2 instance. You will also perform tasks in the AWS Management Console such as checking CloudWatch, adding a bucket policy, and running a CLI command to retrieve the instance ID.
+In this hands-on section, you will use Pulumi to create an S3 bucket and an EC2 instance. You will also perform tasks in the AWS Management Console such as checking CloudWatch, adding a bucket policy, and running a CLI command to retrieve the instance ID.
 
 ## Prerequisites
 
-For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: [Lab 3 Stack](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_3/lib/aws-fundamentals-workshop-labs-stack.ts)
+For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that code, you can copy the code from here: [Lab 3](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_3/lib/aws-fundamentals-workshop-labs-stack.ts)
 
-## Use CDK to Create an S3 Bucket and an EC2 Instance
+## Use Pulumi to Create an S3 Bucket and an EC2 Instance
 
-1. **Open Your CDK Project**
+1. **Open Your Pulumi Project**
 
-   Navigate to your existing CDK project directory.
+   Navigate to your existing Pulumi project directory.
 
-2. **Extend the Stack File**
+2. **Extend the index.ts File**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code to create an S3 bucket and an EC2 instance:
+   Open the `index.ts` file. Add the following code to create an S3 bucket and an EC2 instance:
 
 ```typescript
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
-import {
-  SubnetType,
-  Vpc,
-  SecurityGroup,
-  Peer,
-  Port,
-  Instance,
-  InstanceType,
-  InstanceClass,
-  InstanceSize,
-  MachineImage,
-  UserData,
-} from 'aws-cdk-lib/aws-ec2'
-import {
-  ArnPrincipal,
-  ManagedPolicy,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
-import { Construct } from 'constructs'
+import * as pulumi from "@pulumi/pulumi";
+import * as aws from "@pulumi/aws";
 
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
+// Create a VPC
+const vpc = new aws.ec2.Vpc("MyVpc", {
+    cidrBlock: "10.0.0.0/16",
+    enableDnsHostnames: true,
+    enableDnsSupport: true,
+});
+// Create an Internet Gateway
+const internetGateway = new aws.ec2.InternetGateway("MyInternetGateway", {
+    vpcId: vpc.id,
+});
 
-    // Create a VPC
-    const vpc = new Vpc(this, 'MyVpc', {
-      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'public',
-          subnetType: SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'private',
-          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
-        },
-      ],
-    })
+// Create public subnet
+const publicSubnet = new aws.ec2.Subnet("PublicSubnet", {
+    vpcId: vpc.id,
+    cidrBlock: "10.0.1.0/24",
+});
 
-    // Security Group for EC2 instance
-    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
-      vpc,
-      allowAllOutbound: true,
-      description: 'Allow HTTP access to EC2 instance',
-    })
+// Create private subnet
+const privateSubnet = new aws.ec2.Subnet("PrivateSubnet", {
+    vpcId: vpc.id,
+    cidrBlock: "10.0.2.0/24",
+});
 
-    // Allow HTTP access to the EC2 instance
-    ec2SecurityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(80),
-      'Allow HTTP access'
-    )
+// Create public route table
+const publicRouteTable = new aws.ec2.RouteTable("PublicRouteTable", {
+    vpcId: vpc.id,
+    routes: [{
+        cidrBlock: "0.0.0.0/0",
+        gatewayId: internetGateway.id,
+    }],
+});
 
-    // Security Group for RDS instance
-    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
-      vpc,
-      allowAllOutbound: true,
-      description: 'Allow MySQL access to RDS instance',
-    })
-    rdsSecurityGroup.addIngressRule(
-      ec2SecurityGroup,
-      Port.tcp(3306),
-      'Allow MySQL access from EC2 instance'
-    )
+// Associate public subnet with public route table
+new aws.ec2.RouteTableAssociation("PublicSubnetRouteTableAssociation", {
+    subnetId: publicSubnet.id,
+    routeTableId: publicRouteTable.id,
+});
 
-    // IAM role for EC2 instance to use SSM
-    const role = new Role(this, 'SSMRole', {
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-    })
+// Create NAT Gateway (in public subnet)
+const eip = new aws.ec2.Eip("NatEip", {});
+const natGateway = new aws.ec2.NatGateway("MyNatGateway", {
+    allocationId: eip.id,
+    subnetId: publicSubnet.id,
+});
 
-    // Attach the AmazonSSMManagedInstanceCore managed policy to the role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
-    )
+// Create private route table
+const privateRouteTable = new aws.ec2.RouteTable("PrivateRouteTable", {
+    vpcId: vpc.id,
+    routes: [{
+        cidrBlock: "0.0.0.0/0",
+        natGatewayId: natGateway.id,
+    }],
+});
 
-    // Add S3 read permissions to the EC2 instance role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess')
-    )
+// Associate private subnet with private route table
+new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociation", {
+    subnetId: privateSubnet.id,
+    routeTableId: privateRouteTable.id,
+});
 
-    // Create an EC2 instance
-    const ec2Instance = new Instance(this, 'MyEC2Instance', {
-      vpc,
-      instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
-      machineImage: MachineImage.latestAmazonLinux2(),
-      securityGroup: ec2SecurityGroup,
-      vpcSubnets: { subnetType: SubnetType.PUBLIC },
-      role: role,
-      userData: UserData.forLinux(),
-    })
+// Create security groups
+const ec2SecurityGroup = new aws.ec2.SecurityGroup("EC2SecurityGroup", {
+    vpcId: vpc.id,
+    description: "Allow HTTP access to EC2 instance",
+    ingress: [{
+        protocol: "tcp",
+        fromPort: 80,
+        toPort: 80,
+        cidrBlocks: ["0.0.0.0/0"],
+        description: "Allow HTTP access"
+    }],
+    egress: [{
+        protocol: "-1",
+        fromPort: 0,
+        toPort: 0,
+        cidrBlocks: ["0.0.0.0/0"],
+    }],
+    tags: {
+        Name: "EC2SecurityGroup"
+    }
+});
 
-    // Install AWS CLI on the EC2 instance
-    ec2Instance.addUserData(
-      'yum update -y',
-      'yum install -y aws-cli',
-      'echo "AWS CLI installed. You can now use AWS S3 commands to test bucket access."'
-    )
+const rdsSecurityGroup = new aws.ec2.SecurityGroup("RDSSecurityGroup", {
+    vpcId: vpc.id,
+    description: "Allow MySQL access to RDS instance",
+    ingress: [{
+        protocol: "tcp",
+        fromPort: 3306,
+        toPort: 3306,
+        securityGroups: [ec2SecurityGroup.id],
+        description: "Allow MySQL access from EC2 instance"
+    }],
+    egress: [{
+        protocol: "-1",
+        fromPort: 0,
+        toPort: 0,
+        cidrBlocks: ["0.0.0.0/0"],
+    }],
+    tags: {
+        Name: "RDSSecurityGroup"
+    }
+});
 
-    // Create an S3 bucket
-    const bucket = new Bucket(this, 'MyBucket', {
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      publicReadAccess: false, // Ensure the bucket is not publicly accessible
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL, // Block all public access
-    })
+// Create IAM role for EC2 instance to use SSM
+const ssmRole = new aws.iam.Role("SSMRole", {
+    assumeRolePolicy: JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Action: "sts:AssumeRole",
+            Effect: "Allow",
+            Principal: {
+                Service: "ec2.amazonaws.com"
+            }
+        }]
+    }),
+    managedPolicyArns: [
+      "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+      "AmazonS3ReadOnlyAccess"
+    ]
+});
 
-    // Add a bucket policy that allows access from the EC2 instance
-    bucket.addToResourcePolicy(
-      new PolicyStatement({
-        actions: [
-          's3:GetObject',
-          's3:ListBucket',
-          's3:PutObject',
-          's3:DeleteObject',
-          's3:DeleteBucket',
-        ],
-        resources: [bucket.bucketArn, bucket.arnForObjects('*')],
-        principals: [new ArnPrincipal(ec2Instance.role.roleArn)],
-      })
-    )
+// Create an EC2 instance
+const ec2Instance = new aws.ec2.Instance("MyEC2Instance", {
+    ami: aws.ec2.getAmiOutput({
+        mostRecent: true,
+        owners: ["amazon"],
+        filters: [{
+            name: "name",
+            values: ["amzn2-ami-hvm-*-x86_64-gp2"],
+        }],
+    }).id,
+    instanceType: "t2.micro",
+    subnetId: publicSubnet.id,
+    vpcSecurityGroupIds: [ec2SecurityGroup.id],
+    iamInstanceProfile: new aws.iam.InstanceProfile("ec2InstanceProfile", {
+        role: ssmRole.name,
+    }).name,
+    userData: `#!/bin/bash
+      yum update -y
+      yum install -y aws-cli
+      echo "AWS CLI installed. You can now use AWS S3 commands to test bucket access."`,
+    });
 
-    // Output the bucket name for easy reference
-    new CfnOutput(this, 'BucketName', {
-      value: bucket.bucketName,
-      description: 'Name of the S3 bucket',
-    })
+// Create an S3 bucket
+const bucket = new aws.s3.BucketV2("MyBucket", {
+    forceDestroy: true,
+});
 
-    // Output the EC2 instance ID
-    new CfnOutput(this, 'EC2InstanceId', {
-      value: ec2Instance.instanceId,
-    })
+// Block all public access
+new aws.s3.BucketPublicAccessBlock("MyBucketPublicAccessBlock", {
+    bucket: bucket.id,
+    blockPublicAcls: true,
+    blockPublicPolicy: true,
+    ignorePublicAcls: true,
+    restrictPublicBuckets: true,
+});
 
-    // Output the Security Group IDs
-    new CfnOutput(this, 'EC2SecurityGroupId', {
-      value: ec2SecurityGroup.securityGroupId,
-    })
-    new CfnOutput(this, 'RDSSecurityGroupId', {
-      value: rdsSecurityGroup.securityGroupId,
-    })
+// Add bucket policy for EC2 instance access
+new aws.s3.BucketPolicy("MyBucketPolicy", {
+    bucket: bucket.id,
+    policy: pulumi.all([bucket.arn, ssmRole.arn]).apply(([bucketArn, roleArn]) => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Principal: {
+                AWS: roleArn,
+            },
+            Action: [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteBucket",
+            ],
+            Resource: [
+                bucketArn,
+                `${bucketArn}/*`,
+            ],
+        }],
+    })),
+});
 
-    // Output the VPC ID
-    new CfnOutput(this, 'VpcId', {
-      value: vpc.vpcId,
-    })
-  }
-}
+// Export the resource IDs
+export const vpcId = vpc.id;
+export const ec2SecurityGroupId = ec2SecurityGroup.id;
+export const rdsSecurityGroupId = rdsSecurityGroup.id;
+export const ssmRoleArn = ssmRole.arn;
+export const bucketName = bucket.id;
+export const ec2InstanceId = ec2Instance.id;
 ```
 
 ## Explanation of the Code
@@ -182,15 +222,15 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
 - **Bucket Policy**: Adds a policy to the S3 bucket allowing public read access.
 - **Outputs**: Outputs the S3 bucket name and EC2 instance ID for verification.
 
-3. **Deploy the Stack**
+3. **Deploy the Code**
 
-   To deploy the stack to your AWS account, run the following command from the root directory of your CDK project:
+   To deploy the resources to your AWS account, run the following command from the root directory of your Pulumi project:
 
    ```bash
-   cdk deploy --profile PROFILE_NAME
+   pulumi up
    ```
 
-   This command updates the existing stack, adding the EC2 instance, updating IAM roles to allow access from EC2 to S3, and creating the S3 bucket with its associated bucket policy. The key changes in this update include:
+   This command updates the existing resources, adding the EC2 instance, updating IAM roles to allow access from EC2 to S3, and creating the S3 bucket with its associated bucket policy. The key changes in this update include:
 
    1. Creation of an EC2 instance in the public subnet
    2. Updating IAM roles to grant the EC2 instance access to S3
@@ -221,8 +261,8 @@ Now, let's proceed with verifying the deployment of these resources:
 
    - **AWS Management Console**:
 
-     - Navigate to the S3 service and find the bucket created by the stack.
-     - Navigate to the EC2 service and find the instance created by the stack.
+     - Navigate to the S3 service and find the bucket created by Pulumi.
+     - Navigate to the EC2 service and find the instance created by Pulumi.
 
    - **Connect to EC2 instance and interact with S3 bucket**:
 
@@ -266,7 +306,7 @@ Now, let's proceed with verifying the deployment of these resources:
        {
          "Effect": "Allow",
          "Principal": {
-           "AWS": "AUTOGENERATED_BY_CDK"
+           "AWS": "ROLEARN"
          },
          "Action": [
            "s3:DeleteObject*",
@@ -279,7 +319,7 @@ Now, let's proceed with verifying the deployment of these resources:
        {
          "Effect": "Allow",
          "Principal": {
-           "AWS": "AUTOGENERATED_BY_CDK"
+           "AWS": "ROLEARN"
          },
          "Action": [
            "s3:DeleteBucket",
@@ -350,27 +390,35 @@ When creating an S3 bucket, consider implementing these security features:
 1. Bucket Policy: Restrict access to your S3 bucket using a bucket policy. Here's an example that allows read access only from a specific IAM role:
 
 ```typescript
-const myBucketPolicy = new s3.BucketPolicy(this, 'MyBucketPolicy', {
-  bucket: myBucket,
-})
+const bucket = new aws.s3.BucketV2("MyBucket", {
+    forceDestroy: true,
+});
 
-myBucketPolicy.document.addStatements(
-  new iam.PolicyStatement({
-    actions: ['s3:GetObject'],
-    resources: [myBucket.arnForObjects('*')],
-    principals: [new iam.ArnPrincipal('arn:aws:iam::123456789012:role/MyRole')],
-  })
-)
+new aws.s3.BucketPolicy("MyBucketPolicy", {
+    bucket: bucket.id,
+    policy: pulumi.all([bucket.arn]).apply(([bucketArn]) => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Principal: {
+                AWS: "arn:aws:iam::123456789012:role/MyRole"
+            },
+            Action: "s3:GetObject",
+            Resource: `${bucketArn}/*`
+        }]
+    }))
+});
 ```
 
 2. Versioning: Enable versioning to keep multiple variants of objects in the bucket:
 
 ```typescript
-const myBucket = new s3.Bucket(this, 'MyBucket', {
-  versioned: true,
-  removalPolicy: cdk.RemovalPolicy.DESTROY,
-  autoDeleteObjects: true,
-})
+const bucket = new aws.s3.BucketV2("MyBucket", {
+    forceDestroy: true,
+    versioning: {
+        enabled: true,
+    },
+});
 ```
 
-Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK. You've also verified their configurations and interacted with them through the AWS Management Console and Session Manager. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.
+Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using Pulumi. You've also verified their configurations and interacted with them through the AWS Management Console and Session Manager. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.
