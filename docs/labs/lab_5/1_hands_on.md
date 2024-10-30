@@ -37,12 +37,20 @@ const internetGateway = new aws.ec2.InternetGateway("MyInternetGateway", {
 const publicSubnet = new aws.ec2.Subnet("PublicSubnet", {
     vpcId: vpc.id,
     cidrBlock: "10.0.1.0/24",
+    mapPublicIpOnLaunch: true,
 });
 
-// Create private subnet
-const privateSubnet = new aws.ec2.Subnet("PrivateSubnet", {
+// Create private subnets
+const privateSubnetA = new aws.ec2.Subnet("PrivateSubnetA", {
     vpcId: vpc.id,
     cidrBlock: "10.0.2.0/24",
+    availabilityZone: "eu-central-1a",
+});
+
+const privateSubnetB = new aws.ec2.Subnet("PrivateSubnetB", {
+    vpcId: vpc.id,
+    cidrBlock: "10.0.3.0/24",
+    availabilityZone: "eu-central-1b",
 });
 
 // Create public route table
@@ -77,8 +85,13 @@ const privateRouteTable = new aws.ec2.RouteTable("PrivateRouteTable", {
 });
 
 // Associate private subnet with private route table
-new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociation", {
-    subnetId: privateSubnet.id,
+new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociationA", {
+    subnetId: privateSubnetA.id,
+    routeTableId: privateRouteTable.id,
+});
+
+new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociationB", {
+    subnetId: privateSubnetB.id,
     routeTableId: privateRouteTable.id,
 });
 
@@ -139,7 +152,7 @@ const ssmRole = new aws.iam.Role("SSMRole", {
     }),
     managedPolicyArns: [
       "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-      "AmazonS3ReadOnlyAccess"
+      "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
     ]
 });
 
@@ -205,6 +218,7 @@ new aws.s3.BucketPolicy("MyBucketPolicy", {
 });
 // Create an RDS instance
 const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
+    identifier: "my-rds-instance",
     // MySQL engine and version
     engine: "mysql",
     engineVersion: "8.0.37",
@@ -215,7 +229,7 @@ const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
     // Network configuration
     vpcSecurityGroupIds: [rdsSecurityGroup.id],
     dbSubnetGroupName: new aws.rds.SubnetGroup("rds-subnet-group", {
-        subnetIds: [privateSubnet.id],
+        subnetIds: [privateSubnetA.id, privateSubnetB.id],
     }).id,
     
     // Storage configuration
@@ -227,7 +241,7 @@ const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
     username: "admin",
     
     // Generate random password and store in Secrets Manager
-    manageMainUserPassword: true,
+    manageMasterUserPassword: true,
     
     // Backup configuration
     backupRetentionPeriod: 7,
@@ -238,6 +252,7 @@ const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
     
     // Protection settings
     deletionProtection: false,
+    skipFinalSnapshot: true,
     
     // Availability
     multiAz: false,
