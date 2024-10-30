@@ -14,7 +14,7 @@ Let's recap what you've accomplished:
    - Relational Database Service (RDS)
    - Virtual Private Cloud (VPC) and Networking
 
-2. You've learned about Infrastructure as Code (IaC) using the AWS Cloud Development Kit (CDK), and applied it to deploy resources throughout the workshop.
+2. You've learned about Infrastructure as Code (IaC) using Pulumi, and applied it to deploy resources throughout the workshop.
 
 3. You've practiced using the AWS Management Console, AWS CLI, and programmatic tools to interact with AWS services.
 
@@ -27,7 +27,7 @@ Let's recap what you've accomplished:
 This workshop has provided you with a solid foundation in AWS. Remember that cloud computing is a vast and rapidly evolving field. Here are some suggestions for continuing your AWS journey:
 
 - Review the additional resources provided at the end of each lab to deepen your understanding of specific topics.
-- Apply what you've learned by working on personal projects or contributing to work-related AWS initiatives, particularly focusing on CDK deployments and network architecture.
+- Apply what you've learned by working on personal projects or contributing to work-related AWS initiatives, particularly focusing on Pulumi deployments and network architecture.
 - Consider pursuing AWS certifications to validate your skills and knowledge.
 - Stay updated with the latest AWS developments by following AWS blogs, attending webinars, and participating in AWS events.
 - Explore advanced services like Aurora in more depth, building on the conceptual knowledge you've gained in this workshop.

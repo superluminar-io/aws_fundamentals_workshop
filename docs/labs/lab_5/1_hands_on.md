@@ -1,237 +1,256 @@
 # Lab 5: Amazon RDS
 
-## Set up RDS for Relational Data Storage Using CDK
+## Set up RDS for Relational Data Storage Using Pulumi
 
-In this hands-on section, you will extend the existing CDK project from the previous labs to create an RDS instance. You will configure security groups and database parameters to set up a secure and optimized relational database.
+In this hands-on section, you will extend the existing Pulumi project from the previous labs to create an RDS instance. You will configure security groups and database parameters to set up a secure and optimized relational database.
 
 ## Prerequisites
 
-For this lab, continue with the stack you created in Labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: [Lab 4 Stack](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_4/lib/aws-fundamentals-workshop-labs-stack.ts)
+For this lab, continue with the code you created in Labs 3 and 4. If you need to start fresh or restore the previous setup, use the following link to get the starting code: [Lab 4 Stack](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_4/lib/aws-fundamentals-workshop-labs-stack.ts)
 
-## Create an RDS Instance with CDK
+## Create an RDS Instance with Pulumi
 
-1. **Open Your CDK Project**
+1. **Open Your Pulumi Project**
 
-   Navigate to your existing CDK project directory.
+   Navigate to your existing Pulumi project directory.
 
-2. **Extend the Stack File**
+2. **Extend the index.ts File**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code to create an RDS instance:
+   Open the `index.ts` file. Add the following code to create an RDS instance:
 
 ```typescript
-import {
-  CfnOutput,
-  Duration,
-  RemovalPolicy,
-  Stack,
-  StackProps,
-} from 'aws-cdk-lib'
-import {
-  SubnetType,
-  Vpc,
-  SecurityGroup,
-  Peer,
-  Port,
-  Instance,
-  InstanceType,
-  InstanceClass,
-  InstanceSize,
-  MachineImage,
-  UserData,
-} from 'aws-cdk-lib/aws-ec2'
-import {
-  ArnPrincipal,
-  ManagedPolicy,
-  PolicyStatement,
-  Role,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam'
-import {
-  Credentials,
-  DatabaseInstance,
-  DatabaseInstanceEngine,
-  MysqlEngineVersion,
-} from 'aws-cdk-lib/aws-rds'
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
-import { Construct } from 'constructs'
+import * as pulumi from "@pulumi/pulumi";
+import * as aws from "@pulumi/aws";
 
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
+// Create a VPC
+const vpc = new aws.ec2.Vpc("MyVpc", {
+    cidrBlock: "10.0.0.0/16",
+    enableDnsHostnames: true,
+    enableDnsSupport: true,
+});
+// Create an Internet Gateway
+const internetGateway = new aws.ec2.InternetGateway("MyInternetGateway", {
+    vpcId: vpc.id,
+});
 
-    // Create a VPC
-    const vpc = new Vpc(this, 'MyVpc', {
-      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'public',
-          subnetType: SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'private',
-          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
-        },
-      ],
-    })
+// Create public subnet
+const publicSubnet = new aws.ec2.Subnet("PublicSubnet", {
+    vpcId: vpc.id,
+    cidrBlock: "10.0.1.0/24",
+});
 
-    // Security Group for EC2 instance
-    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
-      vpc,
-      allowAllOutbound: true,
-      description: 'Allow HTTP access to EC2 instance',
-    })
+// Create private subnet
+const privateSubnet = new aws.ec2.Subnet("PrivateSubnet", {
+    vpcId: vpc.id,
+    cidrBlock: "10.0.2.0/24",
+});
 
-    // Allow HTTP access to the EC2 instance
-    ec2SecurityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(80),
-      'Allow HTTP access'
-    )
+// Create public route table
+const publicRouteTable = new aws.ec2.RouteTable("PublicRouteTable", {
+    vpcId: vpc.id,
+    routes: [{
+        cidrBlock: "0.0.0.0/0",
+        gatewayId: internetGateway.id,
+    }],
+});
 
-    // Security Group for RDS instance
-    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
-      vpc,
-      allowAllOutbound: true,
-      description: 'Allow MySQL access to RDS instance',
-    })
-    rdsSecurityGroup.addIngressRule(
-      ec2SecurityGroup,
-      Port.tcp(3306),
-      'Allow MySQL access from EC2 instance'
-    )
+// Associate public subnet with public route table
+new aws.ec2.RouteTableAssociation("PublicSubnetRouteTableAssociation", {
+    subnetId: publicSubnet.id,
+    routeTableId: publicRouteTable.id,
+});
 
-    // IAM role for EC2 instance to use SSM
-    const role = new Role(this, 'SSMRole', {
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-    })
+// Create NAT Gateway (in public subnet)
+const eip = new aws.ec2.Eip("NatEip", {});
+const natGateway = new aws.ec2.NatGateway("MyNatGateway", {
+    allocationId: eip.id,
+    subnetId: publicSubnet.id,
+});
 
-    // Attach the AmazonSSMManagedInstanceCore managed policy to the role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
-    )
+// Create private route table
+const privateRouteTable = new aws.ec2.RouteTable("PrivateRouteTable", {
+    vpcId: vpc.id,
+    routes: [{
+        cidrBlock: "0.0.0.0/0",
+        natGatewayId: natGateway.id,
+    }],
+});
 
-    // Add S3 read permissions to the EC2 instance role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess')
-    )
+// Associate private subnet with private route table
+new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociation", {
+    subnetId: privateSubnet.id,
+    routeTableId: privateRouteTable.id,
+});
 
-    // Create an EC2 instance
-    const ec2Instance = new Instance(this, 'MyEC2Instance', {
-      vpc,
-      instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
-      machineImage: MachineImage.latestAmazonLinux2(),
-      securityGroup: ec2SecurityGroup,
-      vpcSubnets: { subnetType: SubnetType.PUBLIC },
-      role: role,
-      userData: UserData.forLinux(),
-    })
+// Create security groups
+const ec2SecurityGroup = new aws.ec2.SecurityGroup("EC2SecurityGroup", {
+    vpcId: vpc.id,
+    description: "Allow HTTP access to EC2 instance",
+    ingress: [{
+        protocol: "tcp",
+        fromPort: 80,
+        toPort: 80,
+        cidrBlocks: ["0.0.0.0/0"],
+        description: "Allow HTTP access"
+    }],
+    egress: [{
+        protocol: "-1",
+        fromPort: 0,
+        toPort: 0,
+        cidrBlocks: ["0.0.0.0/0"],
+    }],
+    tags: {
+        Name: "EC2SecurityGroup"
+    }
+});
 
-    // Install AWS CLI on the EC2 instance
-    ec2Instance.addUserData(
-      'yum update -y',
-      'yum install -y aws-cli',
-      'echo "AWS CLI installed. You can now use AWS S3 commands to test bucket access."'
-    )
+const rdsSecurityGroup = new aws.ec2.SecurityGroup("RDSSecurityGroup", {
+    vpcId: vpc.id,
+    description: "Allow MySQL access to RDS instance",
+    ingress: [{
+        protocol: "tcp",
+        fromPort: 3306,
+        toPort: 3306,
+        securityGroups: [ec2SecurityGroup.id],
+        description: "Allow MySQL access from EC2 instance"
+    }],
+    egress: [{
+        protocol: "-1",
+        fromPort: 0,
+        toPort: 0,
+        cidrBlocks: ["0.0.0.0/0"],
+    }],
+    tags: {
+        Name: "RDSSecurityGroup"
+    }
+});
 
-    // Create an S3 bucket
-    const bucket = new Bucket(this, 'MyBucket', {
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-      publicReadAccess: false, // Ensure the bucket is not publicly accessible
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL, // Block all public access
-    })
+// Create IAM role for EC2 instance to use SSM
+const ssmRole = new aws.iam.Role("SSMRole", {
+    assumeRolePolicy: JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Action: "sts:AssumeRole",
+            Effect: "Allow",
+            Principal: {
+                Service: "ec2.amazonaws.com"
+            }
+        }]
+    }),
+    managedPolicyArns: [
+      "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+      "AmazonS3ReadOnlyAccess"
+    ]
+});
 
-    // Add a bucket policy that allows access from the EC2 instance
-    bucket.addToResourcePolicy(
-      new PolicyStatement({
-        actions: [
-          's3:GetObject',
-          's3:ListBucket',
-          's3:PutObject',
-          's3:DeleteObject',
-          's3:DeleteBucket',
-        ],
-        resources: [bucket.bucketArn, bucket.arnForObjects('*')],
-        principals: [new ArnPrincipal(ec2Instance.role.roleArn)],
-      })
-    )
+// Create an EC2 instance
+const ec2Instance = new aws.ec2.Instance("MyEC2Instance", {
+    ami: aws.ec2.getAmiOutput({
+        mostRecent: true,
+        owners: ["amazon"],
+        filters: [{
+            name: "name",
+            values: ["amzn2-ami-hvm-*-x86_64-gp2"],
+        }],
+    }).id,
+    instanceType: "t2.micro",
+    subnetId: publicSubnet.id,
+    vpcSecurityGroupIds: [ec2SecurityGroup.id],
+    iamInstanceProfile: new aws.iam.InstanceProfile("ec2InstanceProfile", {
+        role: ssmRole.name,
+    }).name,
+    userData: `#!/bin/bash
+      yum update -y
+      yum install -y aws-cli
+      echo "AWS CLI installed. You can now use AWS S3 commands to test bucket access."`,
+    });
 
-    // Create an RDS instance
-    const rdsInstance = new DatabaseInstance(this, 'MyRDSInstance', {
-      // Choose the MySQL engine version
-      engine: DatabaseInstanceEngine.mysql({
-        version: MysqlEngineVersion.VER_8_0_37,
-      }),
-      // select the VPC
-      vpc,
-      // select the instance type
-      instanceType: InstanceType.of(InstanceClass.T3, InstanceSize.MICRO),
-      // select the subnet type to deploy the RDS instance in
-      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
-      // select the security group we created
-      securityGroups: [rdsSecurityGroup],
-      // set the credentials to be generated in AWS Secrets Manager
-      credentials: Credentials.fromGeneratedSecret('admin'), // Generates a secret in Secrets Manager
-      // set the multi-az to false for a single-az deployment
-      multiAz: false,
-      // select the allocated storage
-      allocatedStorage: 20,
-      // select the max allocated storage
-      maxAllocatedStorage: 100,
-      // disallow major version upgrades
-      allowMajorVersionUpgrade: false,
-      // enable auto-minor version upgrades
-      autoMinorVersionUpgrade: true,
-      // set the backup retention to 7 days
-      backupRetention: Duration.days(7),
-      // disable deletion protection
-      deletionProtection: false,
-      // set the database name
-      databaseName: 'MyDatabase',
-    })
+// Create an S3 bucket
+const bucket = new aws.s3.BucketV2("MyBucket", {
+    forceDestroy: true,
+});
 
-    // Output the RDS instance endpoint
-    new CfnOutput(this, 'RDSInstanceEndpoint', {
-      value: rdsInstance.dbInstanceEndpointAddress,
-    })
+// Block all public access
+new aws.s3.BucketPublicAccessBlock("MyBucketPublicAccessBlock", {
+    bucket: bucket.id,
+    blockPublicAcls: true,
+    blockPublicPolicy: true,
+    ignorePublicAcls: true,
+    restrictPublicBuckets: true,
+});
 
-    // Output the RDS instance identifier
-    new CfnOutput(this, 'RDSInstanceIdentifier', {
-      value: rdsInstance.instanceIdentifier,
-    })
+// Add bucket policy for EC2 instance access
+new aws.s3.BucketPolicy("MyBucketPolicy", {
+    bucket: bucket.id,
+    policy: pulumi.all([bucket.arn, ssmRole.arn]).apply(([bucketArn, roleArn]) => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Principal: {
+                AWS: roleArn,
+            },
+            Action: [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject",
+                "s3:DeleteBucket",
+            ],
+            Resource: [
+                bucketArn,
+                `${bucketArn}/*`,
+            ],
+        }],
+    })),
+});
+// Create an RDS instance
+const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
+    // MySQL engine and version
+    engine: "mysql",
+    engineVersion: "8.0.37",
+    
+    // Instance configuration
+    instanceClass: "db.t3.micro",
+    
+    // Network configuration
+    vpcSecurityGroupIds: [rdsSecurityGroup.id],
+    dbSubnetGroupName: new aws.rds.SubnetGroup("rds-subnet-group", {
+        subnetIds: [privateSubnet.id],
+    }).id,
+    
+    // Storage configuration
+    allocatedStorage: 20,
+    maxAllocatedStorage: 100,
+    
+    // Database configuration
+    dbName: "MyDatabase",
+    username: "admin",
+    
+    // Generate random password and store in Secrets Manager
+    manageMainUserPassword: true,
+    
+    // Backup configuration
+    backupRetentionPeriod: 7,
+    
+    // Upgrade settings
+    allowMajorVersionUpgrade: false,
+    autoMinorVersionUpgrade: true,
+    
+    // Protection settings
+    deletionProtection: false,
+    
+    // Availability
+    multiAz: false,
+});
 
-    // Output the RDS instance secret ARN
-    new CfnOutput(this, 'RDSInstanceSecretArn', {
-      value: rdsInstance.secret?.secretArn || '',
-    })
-
-    // Output the bucket name for easy reference
-    new CfnOutput(this, 'BucketName', {
-      value: bucket.bucketName,
-      description: 'Name of the S3 bucket',
-    })
-
-    // Output the EC2 instance ID
-    new CfnOutput(this, 'EC2InstanceId', {
-      value: ec2Instance.instanceId,
-    })
-
-    // Output the Security Group IDs
-    new CfnOutput(this, 'EC2SecurityGroupId', {
-      value: ec2SecurityGroup.securityGroupId,
-    })
-    new CfnOutput(this, 'RDSSecurityGroupId', {
-      value: rdsSecurityGroup.securityGroupId,
-    })
-
-    // Output the VPC ID
-    new CfnOutput(this, 'VpcId', {
-      value: vpc.vpcId,
-    })
-  }
-}
+// Export the resource IDs
+export const vpcId = vpc.id;
+export const ec2SecurityGroupId = ec2SecurityGroup.id;
+export const rdsSecurityGroupId = rdsSecurityGroup.id;
+export const ssmRoleArn = ssmRole.arn;
+export const bucketName = bucket.id;
+export const ec2InstanceId = ec2Instance.id;
+export const rdsInstanceId = rdsInstance.endpoint;
 ```
 
 ## Lab Architecture
@@ -271,15 +290,15 @@ This setup provides a solid foundation for building applications that require bo
 
 This setup creates a complete environment with both compute (EC2) and database (RDS) resources, properly secured within a VPC structure.
 
-3. **Deploy the Stack**
+3. **Deploy the Code**
 
-   To deploy the stack to your AWS account, run the following command from the root directory of your CDK project:
+   To deploy the code to your AWS account, run the following command from the root directory of your Pulumi project:
 
    ```bash
-   cdk deploy --profile PROFILE_NAME
+   pulumi up
    ```
 
-   This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and RDS instance in your account.
+   This command deploys your Pulumi resources to your AWS account, creating the specified VPC, security groups, and RDS instance.
 
 4. **Verify the Deployment**
 
@@ -312,14 +331,14 @@ This setup creates a complete environment with both compute (EC2) and database (
 
    c. Retrieve the RDS endpoint and credentials:
 
-   - Get the RDS endpoint from the CDK output or the RDS console.
+   - Get the RDS endpoint from the Pulumi output or the RDS console.
    - Retrieve the database credentials from AWS Secrets Manager on your computer's terminal (don't use the Session Manager session for this step):
      ```bash
      aws secretsmanager get-secret-value --secret-id SECRET_ARN --query SecretString --output text --profile PROFILE_NAME
      ```
-     Replace SECRET_ARN with the actual Secret ARN from the CDK output.
+     Replace SECRET_ARN with the actual Secret ARN from the Pulumi output.
 
-   d. Connect to the RDS instance using the MySQL client from the Session Manager session using the RDS endpoint from the CDK output:
+   d. Connect to the RDS instance using the MySQL client from the Session Manager session using the RDS endpoint from the Pulumi output:
 
    ```bash
    mysql -h RDS_ENDPOINT -u admin -p
@@ -372,9 +391,9 @@ The following sections provide informational content about RDS backup, restore p
    In production environments, you would typically enable automated backups when creating your RDS instance:
 
    ```typescript
-   const myDatabase = new rds.DatabaseInstance(this, 'MyDatabase', {
+   const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
      // ... other configuration ...
-     backupRetention: cdk.Duration.days(7),
+     backupRetentionPeriod: 7,
    })
    ```
 
@@ -399,14 +418,10 @@ The following sections provide informational content about RDS backup, restore p
    In a production environment, you would typically enable encryption at rest when creating your RDS instance:
 
    ```typescript
-   const myDatabase = new rds.DatabaseInstance(this, 'MyDatabase', {
+   const rdsInstance = new aws.rds.Instance("MyRDSInstance", {
      // ... other configuration ...
      storageEncrypted: true,
-     encryptionKey: kms.Key.fromKeyArn(
-       this,
-       'MyKey',
-       'arn:aws:kms:region:account:key/key-id'
-     ),
+     kmsKeyId: "<KEY_ARN>"
    })
    ```
 
@@ -417,9 +432,9 @@ Note: The above examples are for illustrative purposes and are not part of this 
 
 ## Summary of Steps
 
-- Set up the VPC and security groups using AWS CDK.
+- Set up the VPC and security groups using Pulumi.
 - Create an RDS instance with the specified configurations.
 - Deploy the stack and verify the RDS instance using the AWS Management Console and CLI.
 - Configure database parameters and option groups to optimize the RDS instance.
 
-You've successfully set up an RDS instance for relational data storage using AWS CDK. This lab completes your journey through creating and managing various AWS services using CDK, equipping you with practical skills for building and managing cloud infrastructure.
+You've successfully set up an RDS instance for relational data storage using Pulumi. This lab completes your journey through creating and managing various AWS services using Pulumi, equipping you with practical skills for building and managing cloud infrastructure.

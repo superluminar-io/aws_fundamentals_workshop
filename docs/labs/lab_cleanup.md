@@ -6,23 +6,23 @@ After completing the labs, it's important to clean up the resources you have cre
 
 ## Steps to Clean Up
 
-### 1. Delete the Stack Using CDK
+### 1. Delete the Resources Using Pulumi
 
-The simplest way to delete all resources created by your CDK stack is to destroy the stack itself. This will automatically clean up all resources managed by the stack.
+The simplest way to delete all resources created by your Pulumi stack is to destroy the stack itself. This will automatically clean up all resources managed by Pulumi.
 
 1. **Open Your Terminal**
 
-   Navigate to the root directory of your CDK project.
+   Navigate to the root directory of your Pulumi project.
 
-2. **Run the CDK Destroy Command**
+2. **Run the Pulumi Destroy Command**
 
    Run the following command to destroy the stack:
 
    ```bash
-   cdk destroy --profile PROFILE_NAME
+   pulumi destroy
    ```
 
-   Confirm the deletion when prompted. This will delete all resources created by the stack, including the VPC, subnets, security groups, EC2 instance, S3 bucket, and RDS instance.
+   Confirm the deletion when prompted. This will delete all resources created by Pulumi, including the VPC, subnets, security groups, EC2 instance, S3 bucket, and RDS instance.
 
 ### 2. Manual Verification (Optional)
 
@@ -96,4 +96,4 @@ After completing the above steps, it's a good practice to double-check for any r
 
 ## Summary
 
-By following these steps, you will ensure that all resources created during the labs are properly cleaned up, avoiding unnecessary costs. The `cdk destroy` command is the primary method for clean-up, but manual verification steps are provided for completeness. Always double-check your AWS account to confirm all resources have been removed.
+By following these steps, you will ensure that all resources created during the labs are properly cleaned up, avoiding unnecessary costs. The `pulumi destroy` command is the primary method for clean-up, but manual verification steps are provided for completeness. Always double-check your AWS account to confirm all resources have been removed.

@@ -6,7 +6,7 @@ This lab introduces you to Pulumi and guides you through setting up your initial
 
 Before you can use Pulumi, you need to set up your AWS credentials. For this workshop, we'll assume you're using AWS IAM Identity Center (formerly AWS SSO) to access your AWS account. Follow these steps to configure your credentials:
 
-If you're not using IAM Identity Center, you can find instructions for configuring standard IAM user credentials in the [AWS documentation](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html#getting_started_prerequisites).
+If you're not using IAM Identity Center, you can find instructions for configuring standard IAM user credentials in the [AWS documentation](https://docs.aws.amazon.com/cli/v1/userguide/cli-authentication-user.html).
 
 1. **Install and Configure AWS CLI**:
    Ensure you have the AWS CLI version 2 installed. If not, download and install it from the [AWS CLI version 2 installation guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).

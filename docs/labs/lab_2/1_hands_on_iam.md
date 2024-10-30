@@ -202,7 +202,7 @@ aws lambda invoke \
     /dev/stdout
 ```
 
-Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS CloudFormation Console or from the CDK output. Don't forget to also replace `PROFILE_NAME` with your profile.
+Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS Lambda Console or from the Pulumi output. Don't forget to also replace `PROFILE_NAME` with your profile.
 
 c. Check the terminal for the function's response. You should see an error message indicating a 500 error for the S3 PutObject action. `"Error writing file"`
 

@@ -11,13 +11,13 @@ The workshop is divided into two main sections:
 1. **Core Concepts**: An introduction to AWS, including key terminology, benefits, global infrastructure, and cloud computing models.
 
 2. **Labs**: Hands-on exercises covering:
-   - Introduction to AWS CDK
+   - Introduction to Pulumi
    - Identity and Access Management (IAM)
    - Networking and Security Groups
    - Basic AWS Services (EC2, S3, etc.)
    - Amazon RDS
 
-Each lab includes step-by-step instructions and practical exercises using AWS CDK to deploy and configure resources.
+Each lab includes step-by-step instructions and practical exercises using Pulumi to deploy and configure resources.
 
 ## Prerequisites
 

@@ -10,19 +10,19 @@ Pulumi is an open-source Infrastructure as Code (IaC) platform that allows devel
 
 Understanding the core concepts of Pulumi is crucial to effectively using the platform:
 
-1. **Stacks**:
+1. **Projects**:
+   - A project in Pulumi defines a program that can be deployed. It includes your infrastructure code and a Pulumi.yaml file that specifies project metadata.
+   - Projects can contain multiple stacks and are typically stored in version control alongside your application code.
+
+2. **Stacks**:
 
    - A stack is the fundamental deployment unit in Pulumi. Usually it represents an environment of your infrastructure (like development, staging, or production).
    - Stacks maintain their own configuration and state, allowing you to manage multiple deployments of the same infrastructure with different settings.
 
-2. **Resources**:
+3. **Resources**:
 
    - Resources are the basic building blocks of Pulumi programs. They represent cloud infrastructure components (like an S3 bucket, VM, or Kubernetes cluster).
    - Resources can be composed and abstracted into reusable components, enabling you to create higher-level abstractions for common patterns.
-
-3. **Projects**:
-   - A project in Pulumi defines a program that can be deployed. It includes your infrastructure code and a Pulumi.yaml file that specifies project metadata.
-   - Projects can contain multiple stacks and are typically stored in version control alongside your application code.
 
 ## State Management
 

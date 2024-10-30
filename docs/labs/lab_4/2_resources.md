@@ -26,10 +26,9 @@ To dive deeper into the topics covered in Lab 4, here are some helpful resources
 - [AWS CLI S3 Commands](https://docs.aws.amazon.com/cli/latest/reference/s3/index.html) - Reference for S3-related AWS CLI commands
 - [AWS CLI EC2 Commands](https://docs.aws.amazon.com/cli/latest/reference/ec2/index.html) - Reference for EC2-related AWS CLI commands
 
-## AWS CDK with S3 and EC2
+## Pulumi with S3 and EC2
 
-- [AWS CDK Developer Guide](https://docs.aws.amazon.com/cdk/v2/guide/home.html) - Comprehensive guide for working with AWS CDK
-- [AWS CDK S3 Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html#s3) - API reference for S3 constructs in CDK
-- [AWS CDK EC2 Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html#ec2) - API reference for EC2 constructs in CDK
+- [Pulumi AWS S3 Docs](https://www.pulumi.com/registry/packages/aws/api-docs/s3/) - API reference for S3 constructs in Pulumi
+- [Pulumi EC2 Docs](https://www.pulumi.com/registry/packages/aws/api-docs/ec2/) - API reference for EC2 constructs in Pulumi
 
 These resources should provide a solid foundation for further exploration of the core AWS services introduced in Lab 4. Happy learning!

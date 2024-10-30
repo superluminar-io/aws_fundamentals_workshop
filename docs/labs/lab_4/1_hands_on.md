@@ -338,7 +338,7 @@ Now, let's proceed with verifying the deployment of these resources:
 
 At this point, you should have:
 
-- Created an S3 bucket using CDK
+- Created an S3 bucket using Pulumi
 - Launched an EC2 instance in the public subnet
 - Configured the EC2 instance to use Systems Manager Session Manager
 - Successfully connected to the EC2 instance using Session Manager

@@ -19,10 +19,6 @@ To dive deeper into the topics covered in Lab 5, here are some helpful resources
 - [AWS Database Migration Service](https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html) - Guide to using AWS DMS for database migration
 - [Schema Conversion Tool](https://docs.aws.amazon.com/SchemaConversionTool/latest/userguide/CHAP_Welcome.html) - Tool for converting database schemas between different database engines
 
-## AWS CDK with RDS and Aurora
-
-- [AWS CDK RDS Module](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_rds-readme.html) - API reference for RDS constructs in CDK
-
 ## Database Security
 
 - [RDS Security Best Practices](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_BestPractices.Security.html) - Security best practices for RDS
