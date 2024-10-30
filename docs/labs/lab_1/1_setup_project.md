@@ -70,20 +70,14 @@ Verify the installation:
 pulumi version
 ```
 
-
-2. **Create the state backend**:
-Go to the aws console and create a new s3 bucket which will be used as the state backend.
-
-To do so, go to the AWS console, navigate to S3, click on "Create bucket", and follow the steps to create a new bucket (default settings are fine).
-
-3. **Login to Pulumi**:
-   You'll need to login to Pulumi to store your state.
+2. **Login to Pulumi**:
+   You'll need to login to Pulumi to store your state. For this workshop, we'll use a local state backend.
 
 ```bash
-pulumi login s3://YOUR_BUCKET_NAME
+pulumi login --local
 ```
 
-4. **Create a New Pulumi Project**:
+3. **Create a New Pulumi Project**:
    Navigate to where you want to create your project and run:
 
 ```bash
@@ -164,9 +158,10 @@ At this point, you should have:
 
 ## Best Practices and Security Considerations
 
-1. Use Pulumi's built-in secret management for sensitive values (e.g. use a kms key to encrypt secret values by [changing the secrets provider](https://www.pulumi.com/docs/iac/cli/commands/pulumi_stack_change-secrets-provider/) and [adding a secret value](https://www.pulumi.com/docs/iac/concepts/secrets/).
-2. Follow the principle of least privilege for AWS credentials
-3. Use version control for your infrastructure code
+1. Use a remote state backend e.g. [S3](https://www.pulumi.com/docs/iac/concepts/state-and-backends/#aws-s3).
+2. Use Pulumi's built-in secret management for sensitive values (e.g. use a kms key to encrypt secret values by [changing the secrets provider](https://www.pulumi.com/docs/iac/cli/commands/pulumi_stack_change-secrets-provider/) and [adding a secret value](https://www.pulumi.com/docs/iac/concepts/secrets/).
+3. Follow the principle of least privilege for AWS credentials
+4. Use version control for your infrastructure code
 
 ## Reset the Stack for the Next Lab
 
