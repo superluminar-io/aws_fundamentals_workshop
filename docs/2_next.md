@@ -10,7 +10,7 @@ Congratulations on completing the AWS Fundamentals workshop! You've taken an imp
 
 ## Continue Your Learning Journey
 
-- Take the **Intermediate AWS Services and Best Practices** workshop.
+- Take the **AWS Advanced** workshop.
   - This self-paced workshop will deepen your AWS expertise and introduce you to more advanced concepts and services.
 - Explore the additional resources provided in each lab's "Additional Resources" section for deeper dives into specific topics.
 - Consider pursuing AWS Certifications to validate your skills. The AWS Certified Cloud Practitioner is a great starting point for beginners.
@@ -49,4 +49,4 @@ Visit the [AWS Certification](https://aws.amazon.com/certification/) page for mo
 
 Remember, cloud computing is a rapidly evolving field. Continuous learning and practical application are key to staying current and advancing your skills. By following these next steps, you'll be well on your way to becoming an AWS expert.
 
-Ready to take the next step? Access the **Intermediate AWS Services and Best Practices** workshop to deepen your AWS expertise!
+Ready to take the next step? Access the **AWS Advanced** workshop to deepen your AWS expertise!

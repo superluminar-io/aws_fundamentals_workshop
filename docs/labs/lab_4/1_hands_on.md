@@ -99,13 +99,6 @@ new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociationB", {
 const ec2SecurityGroup = new aws.ec2.SecurityGroup("EC2SecurityGroup", {
     vpcId: vpc.id,
     description: "Allow HTTP access to EC2 instance",
-    ingress: [{
-        protocol: "tcp",
-        fromPort: 80,
-        toPort: 80,
-        cidrBlocks: ["0.0.0.0/0"],
-        description: "Allow HTTP access"
-    }],
     egress: [{
         protocol: "-1",
         fromPort: 0,
@@ -116,26 +109,45 @@ const ec2SecurityGroup = new aws.ec2.SecurityGroup("EC2SecurityGroup", {
         Name: "EC2SecurityGroup"
     }
 });
+new aws.ec2.SecurityGroupRule("AllowHttpsAccess", {
+    type: "ingress",
+    fromPort: 80,
+    toPort: 80,
+    protocol: aws.ec2.ProtocolType.TCP,
+    cidrBlocks: ["0.0.0.0/0"],
+    securityGroupId: ec2SecurityGroup.id,
+});
+new aws.ec2.SecurityGroupRule("AllowHttpsAccess", {
+    type: "egress",
+    fromPort: 0,
+    toPort: 0,
+    protocol: "-1",
+    cidrBlocks: ["0.0.0.0/0"],
+    securityGroupId: ec2SecurityGroup.id,
+});
 
 const rdsSecurityGroup = new aws.ec2.SecurityGroup("RDSSecurityGroup", {
     vpcId: vpc.id,
     description: "Allow MySQL access to RDS instance",
-    ingress: [{
-        protocol: "tcp",
-        fromPort: 3306,
-        toPort: 3306,
-        securityGroups: [ec2SecurityGroup.id],
-        description: "Allow MySQL access from EC2 instance"
-    }],
-    egress: [{
-        protocol: "-1",
-        fromPort: 0,
-        toPort: 0,
-        cidrBlocks: ["0.0.0.0/0"],
-    }],
     tags: {
         Name: "RDSSecurityGroup"
     }
+});
+new aws.ec2.SecurityGroupRule("AllowHttpsAccess", {
+    type: "ingress",
+    fromPort: 3306,
+    toPort: 3306,
+    protocol: aws.ec2.ProtocolType.TCP,
+    cidrBlocks: ["0.0.0.0/0"],
+    securityGroupId: rdsSecurityGroup.id,
+});
+new aws.ec2.SecurityGroupRule("AllowHttpsAccess", {
+    type: "egress",
+    fromPort: 0,
+    toPort: 0,
+    protocol: "-1",
+    cidrBlocks: ["0.0.0.0/0"],
+    securityGroupId: rdsSecurityGroup.id,
 });
 
 // Create IAM role for EC2 instance to use SSM

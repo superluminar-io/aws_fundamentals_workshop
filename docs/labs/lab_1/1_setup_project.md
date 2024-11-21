@@ -2,43 +2,27 @@
 
 This lab introduces you to Pulumi and guides you through setting up your initial project environment. You'll learn how to install Pulumi, create a new project, and deploy a simple stack.
 
+## Prerequisites
+
+- Access to AWS SSO of your company or an AWS account
+- Node installed on your machine
+
 ## Configure AWS Credentials with IAM Identity Center
 
 Before you can use Pulumi, you need to set up your AWS credentials. For this workshop, we'll assume you're using AWS IAM Identity Center (formerly AWS SSO) to access your AWS account. Follow these steps to configure your credentials:
 
-If you're not using IAM Identity Center, you can find instructions for configuring standard IAM user credentials in the [AWS documentation](https://docs.aws.amazon.com/cli/v1/userguide/cli-authentication-user.html).
+1. **Configure AWS CLI with IAM Identity Center**:
+   Copy the exported credentials from the AWS SSO page for the account you want to use and paste them into your terminal.
+   ```bash
+   export AWS_ACCESS_KEY_ID="<KEY_ID>"
+   export AWS_SECRET_ACCESS_KEY="<SECRET_ACCESS_KEY>"
+   export AWS_SESSION_TOKEN="<SESSION_TOKEN>"
+   ```
 
-1. **Install and Configure AWS CLI**:
-   Ensure you have the AWS CLI version 2 installed. If not, download and install it from the [AWS CLI version 2 installation guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
-
-2. **Configure AWS CLI with IAM Identity Center**:
-   Run the following command and follow the prompts:
-
-```bash
-aws configure sso
-```
-
-You'll need to provide:
-
-- SSO start URL (get this from your IT department)
-- SSO Region (get this from your IT department)
-- Default client Region
-- Default output format (json is recommended)
-
-Give the profile a name, and then you can issue commands using --profile PROFILE_NAME at the end.
-
-Example:
-
-```bash
-aws s3 ls --profile sandbox
-```
-
-3. **Verify Setup**:
-   To ensure everything is set up correctly, run:
-
-```bash
-aws sts get-caller-identity --profile PROFILE_NAME
-```
+2. **Verify AWS Setup**:
+   ```bash
+   aws sts get-caller-identity
+   ```
 
 This should display your AWS account ID, user ID, and ARN.
 

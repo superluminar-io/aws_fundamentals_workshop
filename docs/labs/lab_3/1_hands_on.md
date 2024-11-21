@@ -59,14 +59,9 @@ const publicRouteTable = new aws.ec2.RouteTable("PublicRouteTable", {
 });
 
 // Associate public subnet with public route table
-new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociationA", {
-    subnetId: privateSubnetA.id,
-    routeTableId: privateRouteTable.id,
-});
-
-new aws.ec2.RouteTableAssociation("PrivateSubnetRouteTableAssociationB", {
-    subnetId: privateSubnetB.id,
-    routeTableId: privateRouteTable.id,
+new aws.ec2.RouteTableAssociation("PublicSubnetRouteTableAssociationA", {
+    subnetId: publicSubnet.id,
+    routeTableId: publicRouteTable.id,
 });
 
 // Create NAT Gateway (in public subnet)
