@@ -65,14 +65,6 @@ To verify the installation, run:
 cdk --version
 ```
 
-This command installs the CDK Toolkit globally on your machine, making the `cdk` command available from any directory.
-
-To verify the installation, run:
-
-```bash
-cdk --version
-```
-
 2. **Bootstrap your AWS account**:
    Before you can deploy CDK applications, you need to bootstrap your AWS account. This process creates the necessary resources in your account to support CDK deployments. Run the following command:
 
@@ -83,17 +75,6 @@ cdk bootstrap --profile PROFILE_NAME
 This command sets up an S3 bucket and other resources needed for CDK deployments in your account.
 
 3. **Create a New CDK Project**:
-   Navigate to the directory where you want to create your new CDK project. We'll name our project `aws-fundamentals-workshop-labs`. Run the following commands to create a folder, navigate inside and initialize a new CDK application:
-
-```bash
-mkdir aws-fundamentals-workshop-labs
-cd aws-fundamentals-workshop-labs
-cdk init app --language=typescript
-```
-
-This command sets up a new CDK project with a basic directory structure and necessary configuration files.
-
-4. **Create a New CDK Project**:
    Navigate to the directory where you want to create your new CDK project. We'll name our project `aws-fundamentals-workshop-labs`. Run the following commands to create a folder, navigate inside and initialize a new CDK application:
 
 ```bash
