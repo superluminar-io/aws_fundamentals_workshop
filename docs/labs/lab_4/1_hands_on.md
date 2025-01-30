@@ -2,13 +2,13 @@
 
 ## Deploy Core Services Using CDK
 
-In this hands-on section, you will use AWS CDK to create an S3 bucket and an EC2 instance. You will also perform tasks in the AWS Management Console such as checking CloudWatch, adding a bucket policy, and running a CLI command to retrieve the instance ID.
+In this hands-on section, you will use AWS CDK to create an S3 bucket and an ECS Service. You will also perform tasks in the AWS Management Console such as checking CloudWatch, and adding a bucket policy.
 
 ## Prerequisites
 
 For this and Lab 5, we will be continuing with the same stack and adding services to it. If you don't still have that stack, you can copy the code from here: [Lab 3 Stack](https://github.com/superluminar-io/aws_fundamentals_workshop_labs/blob/main/lab_3/lib/aws-fundamentals-workshop-labs-stack.ts)
 
-## Use CDK to Create an S3 Bucket and an EC2 Instance
+## Use CDK to Create an S3 Bucket and an ECS Service
 
 1. **Open Your CDK Project**
 
@@ -16,32 +16,31 @@ For this and Lab 5, we will be continuing with the same stack and adding service
 
 2. **Extend the Stack File**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code to create an S3 bucket and an EC2 instance:
+   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code to create an S3 bucket and an ECS Service:
 
 ```typescript
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
+import {CfnOutput, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib'
 import {
   SubnetType,
   Vpc,
   SecurityGroup,
-  Peer,
   Port,
-  Instance,
-  InstanceType,
-  InstanceClass,
-  InstanceSize,
-  MachineImage,
-  UserData,
 } from 'aws-cdk-lib/aws-ec2'
 import {
   ArnPrincipal,
-  ManagedPolicy,
   PolicyStatement,
-  Role,
-  ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam'
-import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3'
-import { Construct } from 'constructs'
+import {BlockPublicAccess, Bucket} from 'aws-cdk-lib/aws-s3'
+import {Construct} from 'constructs'
+import {
+  Cluster,
+  ContainerImage,
+  FargateService,
+  FargateTaskDefinition,
+  ListenerConfig,
+  LogDrivers
+} from "aws-cdk-lib/aws-ecs";
+import {ApplicationLoadBalancer, ApplicationProtocol} from "aws-cdk-lib/aws-elasticloadbalancingv2";
 
 export class AwsFundamentalsWorkshopLabsStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -64,63 +63,55 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
       ],
     })
 
-    // Security Group for EC2 instance
-    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
+    // Create the ECS Cluster
+    const cluster = new Cluster(this, 'FargateCluster', {
       vpc,
-      allowAllOutbound: true,
-      description: 'Allow HTTP access to EC2 instance',
-    })
+    });
+    // Create a Fargate Task Definition with a Container
+    const fargateTaskDefinition = new FargateTaskDefinition(this, 'TaskDef');
+    fargateTaskDefinition.addContainer('AppContainer', {
+      containerName: 'web',
+      image: ContainerImage.fromRegistry('nginx:latest'),
+      memoryLimitMiB: 512,
+      cpu: 256,
+      logging: LogDrivers.awsLogs({streamPrefix: 'myApp/nginx'}),
+      portMappings: [{containerPort: 80}],
+    });
 
-    // Allow HTTP access to the EC2 instance
-    ec2SecurityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(80),
-      'Allow HTTP access'
-    )
+    // Create a Fargate Service
+    const service = new FargateService(this, 'FargateService', {
+      cluster,
+      taskDefinition: fargateTaskDefinition,
+      minHealthyPercent: 100,
+      vpcSubnets: {subnetType: SubnetType.PRIVATE_WITH_EGRESS},
+    });
 
-    // Security Group for RDS instance
+    // Create an Application Load Balancer that listens on port 80
+    const lb = new ApplicationLoadBalancer(this, 'LoadBalancer', {vpc, internetFacing: true});
+    const listener = lb.addListener('LBListener', {port: 80});
+
+    // Register the ECS Service as a target of the Application Load Balancer
+    service.registerLoadBalancerTargets(
+      {
+        containerName: 'web',
+        containerPort: 80,
+        newTargetGroupId: 'ecs_nginx',
+        listener: ListenerConfig.applicationListener(listener, {
+          protocol: ApplicationProtocol.HTTP,
+        }),
+      },
+    );
+
+    // Security Group for RDS instance that allows ingress from the ECS service
     const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
       vpc,
       allowAllOutbound: true,
       description: 'Allow MySQL access to RDS instance',
     })
     rdsSecurityGroup.addIngressRule(
-      ec2SecurityGroup,
+      service.connections.securityGroups[0],
       Port.tcp(3306),
-      'Allow MySQL access from EC2 instance'
-    )
-
-    // IAM role for EC2 instance to use SSM
-    const role = new Role(this, 'SSMRole', {
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-    })
-
-    // Attach the AmazonSSMManagedInstanceCore managed policy to the role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
-    )
-
-    // Add S3 read permissions to the EC2 instance role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess')
-    )
-
-    // Create an EC2 instance
-    const ec2Instance = new Instance(this, 'MyEC2Instance', {
-      vpc,
-      instanceType: InstanceType.of(InstanceClass.T2, InstanceSize.MICRO),
-      machineImage: MachineImage.latestAmazonLinux2(),
-      securityGroup: ec2SecurityGroup,
-      vpcSubnets: { subnetType: SubnetType.PUBLIC },
-      role: role,
-      userData: UserData.forLinux(),
-    })
-
-    // Install AWS CLI on the EC2 instance
-    ec2Instance.addUserData(
-      'yum update -y',
-      'yum install -y aws-cli',
-      'echo "AWS CLI installed. You can now use AWS S3 commands to test bucket access."'
+      'Allow MySQL access from ECS service'
     )
 
     // Create an S3 bucket
@@ -131,7 +122,7 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL, // Block all public access
     })
 
-    // Add a bucket policy that allows access from the EC2 instance
+    // Add a bucket policy that allows access from the ECS service
     bucket.addToResourcePolicy(
       new PolicyStatement({
         actions: [
@@ -142,9 +133,15 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
           's3:DeleteBucket',
         ],
         resources: [bucket.bucketArn, bucket.arnForObjects('*')],
-        principals: [new ArnPrincipal(ec2Instance.role.roleArn)],
+        principals: [new ArnPrincipal(service.taskDefinition.taskRole.roleArn)],
       })
     )
+
+    //Output the Load Balancer DNS Name for easy reference
+    new CfnOutput(this, 'LoadBalancerDNS', {
+      value: lb.loadBalancerDnsName,
+      description: 'DNS Name of the Application Load Balancer',
+    })
 
     // Output the bucket name for easy reference
     new CfnOutput(this, 'BucketName', {
@@ -152,15 +149,7 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
       description: 'Name of the S3 bucket',
     })
 
-    // Output the EC2 instance ID
-    new CfnOutput(this, 'EC2InstanceId', {
-      value: ec2Instance.instanceId,
-    })
-
-    // Output the Security Group IDs
-    new CfnOutput(this, 'EC2SecurityGroupId', {
-      value: ec2SecurityGroup.securityGroupId,
-    })
+    // Output the RDS Security Group ID for easy reference
     new CfnOutput(this, 'RDSSecurityGroupId', {
       value: rdsSecurityGroup.securityGroupId,
     })
@@ -176,11 +165,14 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
 ## Explanation of the Code
 
 - **VPC**: Sets up a VPC with public and private subnets and a NAT Gateway.
-- **EC2 Security Group**: Allows HTTP (port 80) access to the EC2 instance.
-- **EC2 Instance**: Creates an EC2 instance in the public subnet with the specified security group and IAM role for SSM access.
-- **S3 Bucket**: Creates an S3 bucket with a destroy policy.
+- **ECS Cluster**: Creates an ECS cluster to run the Fargate service.
+- **Fargate Task Definition**: Defines a task definition for the Fargate service with an Nginx container.
+- **Fargate Service**: Creates a Fargate service that runs the Nginx container.
+- **Application Load Balancer**: Creates an Application Load Balancer to route traffic to the ECS service.
+- **Security Group**: Creates a security group for the RDS instance that allows ingress from the ECS service.
+- **S3 Bucket**: Creates an S3 bucket with a bucket policy that allows access from the ECS service.
 - **Bucket Policy**: Adds a policy to the S3 bucket allowing public read access.
-- **Outputs**: Outputs the S3 bucket name and EC2 instance ID for verification.
+- **Outputs**: Outputs the S3 bucket name for verification.
 
 3. **Deploy the Stack**
 
@@ -190,14 +182,15 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
    cdk deploy --profile PROFILE_NAME
    ```
 
-   This command updates the existing stack, adding the EC2 instance, updating IAM roles to allow access from EC2 to S3, and creating the S3 bucket with its associated bucket policy. The key changes in this update include:
+   This command updates the existing stack, adding the ECS Service, updating IAM roles to allow access from ECS to S3, and creating the S3 bucket with its associated bucket policy. The key changes in this update include:
 
-   1. Creation of an EC2 instance in the public subnet
-   2. Updating IAM roles to grant the EC2 instance access to S3
+   1. Creation of an ECS cluster and service in the private subnet
+   2. Creation of an Application Load Balancer to route traffic to the ECS service in the public subnet
+   2. Updating IAM roles to grant the ECS service access to S3
    3. Creation of an S3 bucket
-   4. Addition of a bucket policy allowing access from the EC2 instance
+   4. Addition of a bucket policy allowing access from the ECS service
 
-   Review the changes carefully before confirming the deployment. This update will create new resources and modify existing ones to enable the interaction between EC2 and S3.
+   Review the changes carefully before confirming the deployment. This update will create new resources and modify existing ones to enable the interaction between ECS and S3.
 
 ## Lab Architecture
 
@@ -208,10 +201,11 @@ Before we proceed with verifying the deployment, let's take a moment to review t
 This diagram illustrates the key components of our lab:
 
 1. A Virtual Private Cloud (VPC) with public and private subnets spread across multiple Availability Zones, which we set up in the previous lab.
-2. An EC2 instance launched in the public subnet, which we can connect to using Systems Manager Session Manager.
-3. Security groups controlling inbound and outbound traffic for our EC2 instance.
-4. An S3 bucket for storing objects, with a bucket policy controlling access.
-5. IAM roles and policies managing permissions for the EC2 instance and S3 bucket access.
+2. An ECS service launched in the private subnet.
+3. An Application Load Balancer (ALB) in the public subnet routing traffic to the ECS service.
+4. Security groups controlling inbound and outbound traffic for our ECS service.
+5. An S3 bucket for storing objects, with a bucket policy controlling access.
+6. IAM roles and policies managing permissions for the ECS service and S3 bucket access.
 
 This architecture demonstrates a secure and scalable setup for core AWS services, allowing us to manage compute resources and object storage while maintaining proper security controls and monitoring capabilities.
 
@@ -222,9 +216,10 @@ Now, let's proceed with verifying the deployment of these resources:
    - **AWS Management Console**:
 
      - Navigate to the S3 service and find the bucket created by the stack.
-     - Navigate to the EC2 service and find the instance created by the stack.
+     - Navigate to the ECS service and find the instance created by the stack.
 
-   - **Connect to EC2 instance and interact with S3 bucket**:
+[//]: # (TODO: Add verification steps for S3 and ECS (connecting to container?))
+   - **Connect to ECS container and interact with S3 bucket**:
 
      1. In the EC2 console, select your instance and click "Connect".
      2. In the "Connect to instance" dialog, select the "Session Manager" tab and click "Connect".
@@ -243,13 +238,10 @@ Now, let's proceed with verifying the deployment of these resources:
         ```
 
    - **Web Browser Access Test**:
-     1. In the AWS Management Console, navigate to the S3 service and select your bucket.
-     2. Find the `test.html` file you just uploaded.
-     3. Copy the Object URL of the `test.html` file.
-     4. Open a new tab in your web browser and paste the Object URL.
-     5. You should receive an "Access Denied" error, indicating that the file is not publicly accessible.
-
-   This verification process demonstrates that while the EC2 instance can upload files to the S3 bucket, these files are not publicly accessible through a web browser. This showcases the effective use of S3 bucket policies in controlling access to your resources.
+     1. In the AWS Management Console, navigate to the EC2 service and select load balancer.
+     2. Find the DNS name of the Application Load Balancer.
+     3. Open a new tab in your web browser and paste the URL.
+     4. You should see a web page indicating the nginx is running.
 
 2. **Verify a Bucket Policy**
 
@@ -299,28 +291,19 @@ Now, let's proceed with verifying the deployment of these resources:
 At this point, you should have:
 
 - Created an S3 bucket using CDK
-- Launched an EC2 instance in the public subnet
-- Configured the EC2 instance to use Systems Manager Session Manager
-- Successfully connected to the EC2 instance using Session Manager
-- Successfully uploaded a file to the S3 bucket
-- Successfully verified the bucket policy
-
-If you're encountering issues, check the following:
-
-- Verify that the S3 bucket was created successfully
-- Ensure the EC2 instance has the correct IAM role for Systems Manager access
-- Check that the VPC endpoints for Systems Manager are correctly configured
+- Launched an ECS service in the private subnet
+- Successfully connected to the ECS service via HTTP and interacted with the S3 bucket
 
 ## Best Practices and Security Considerations
 
-### EC2 Instance Management
+### ECS with Fargate Management
 
-1. Use IAM roles instead of storing AWS credentials on EC2 instances.
-2. Regularly patch and update your EC2 instances to maintain security.
-3. Use Amazon CloudWatch for monitoring and set up alarms for critical metrics.
-4. Implement proper security group rules to control inbound and outbound traffic.
-5. Use Amazon EC2 Auto Scaling to automatically adjust capacity based on demand.
-6. Use EC2 Instance Metadata Service Version 2 (IMDSv2) for improved security.
+1. Use IAM roles for tasks instead of storing AWS credentials within containers.
+2. Ensure your container images are regularly updated and patched for security.
+3. Use Amazon CloudWatch for monitoring ECS services and set up alarms for critical metrics.
+4. Implement proper security group rules to control inbound and outbound traffic for tasks.
+5. Use ECS Service Auto Scaling to automatically adjust task count based on demand.
+6. Use AWS Secrets Manager or AWS Systems Manager Parameter Store to securely manage sensitive data.
 
 ### S3 Security
 
@@ -338,8 +321,8 @@ If you're encountering issues, check the following:
 
 ### Performance and Cost Optimization
 
-1. Choose the right instance types based on your workload requirements.
-2. Use Amazon EC2 Spot Instances for flexible, fault-tolerant applications to reduce costs.
+1. Choose the right ECS task size based on your workload requirements.
+2. Use Amazon Fargate Spot Instances for flexible, fault-tolerant applications to reduce costs.
 3. Implement caching strategies using services like Amazon ElastiCache to improve performance.
 4. Use AWS Trusted Advisor to get real-time guidance on best practices for cost optimization, security, fault tolerance, and performance improvement.
 
@@ -373,4 +356,4 @@ const myBucket = new s3.Bucket(this, 'MyBucket', {
 })
 ```
 
-Excellent! You have now successfully created and deployed an S3 bucket and an EC2 instance using AWS CDK. You've also verified their configurations and interacted with them through the AWS Management Console and Session Manager. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.
+Excellent! You have now successfully created and deployed an S3 bucket and an ECS service using AWS CDK. You've also verified their configurations and interacted with them through the AWS Management Console. This lab has expanded your understanding of managing basic AWS services both programmatically and through the AWS console.
