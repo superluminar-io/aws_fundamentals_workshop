@@ -140,97 +140,6 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
 - **RDS Security Group**: Allows MySQL (port 3306) access from the EC2 security group.
 - **Outputs**: Outputs the security group IDs for verification.
 
-## Using AWS Systems Manager Session Manager
-
-AWS Systems Manager Session Manager is a fully managed AWS service that provides secure and auditable instance management without needing to open inbound ports, manage bastion hosts, or manage SSH keys. It offers a browser-based shell and CLI access to your instances.
-
-### Enabling Session Manager
-
-To use Session Manager, ensure the following prerequisites are met:
-
-1. **Install SSM Agent**: The SSM Agent must be installed and running on the EC2 instances. Most Amazon Machine Images (AMIs) have the SSM Agent pre-installed.
-2. **IAM Role**: Your EC2 instances must have an IAM role with the necessary permissions to communicate with the Systems Manager service.
-
-**Modify the CDK Stack to Attach IAM Role**
-
-Extend the stack file to include an IAM role for the EC2 instance:
-
-```typescript
-import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib'
-import { SubnetType, Vpc, SecurityGroup, Peer, Port } from 'aws-cdk-lib/aws-ec2'
-import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam'
-import { Construct } from 'constructs'
-
-export class AwsFundamentalsWorkshopLabsStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props)
-
-    // Create a VPC
-    const vpc = new Vpc(this, 'MyVpc', {
-      natGateways: 1, // Default is one in each AZ, this creates only one instead of two.
-      subnetConfiguration: [
-        {
-          cidrMask: 24,
-          name: 'public',
-          subnetType: SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 24,
-          name: 'private',
-          subnetType: SubnetType.PRIVATE_WITH_EGRESS, // This creates a private subnet with egress access to the internet.
-        },
-      ],
-    })
-
-    // Security Group for EC2 instance
-    const ec2SecurityGroup = new SecurityGroup(this, 'EC2SecurityGroup', {
-      vpc,
-      allowAllOutbound: true,
-      description: 'Allow HTTP access to EC2 instance',
-    })
-    ec2SecurityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(80),
-      'Allow HTTP access'
-    )
-
-    // Security Group for RDS instance
-    const rdsSecurityGroup = new SecurityGroup(this, 'RDSSecurityGroup', {
-      vpc,
-      allowAllOutbound: true,
-      description: 'Allow MySQL access to RDS instance',
-    })
-    rdsSecurityGroup.addIngressRule(
-      ec2SecurityGroup,
-      Port.tcp(3306),
-      'Allow MySQL access from EC2 instance'
-    )
-
-    // IAM role for EC2 instance to use SSM
-    const role = new Role(this, 'SSMRole', {
-      assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-    })
-
-    // Attach the AmazonSSMManagedInstanceCore managed policy to the role
-    role.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
-    )
-
-    // Output the Security Group IDs
-    new CfnOutput(this, 'EC2SecurityGroupId', {
-      value: ec2SecurityGroup.securityGroupId,
-    })
-    new CfnOutput(this, 'RDSSecurityGroupId', {
-      value: rdsSecurityGroup.securityGroupId,
-    })
-
-    // Output the VPC ID
-    new CfnOutput(this, 'VpcId', {
-      value: vpc.vpcId,
-    })
-  }
-}
-```
 
 ## Lab Architecture
 
@@ -283,7 +192,7 @@ To deploy the stack to your AWS account, run the following command from the root
 cdk deploy --profile PROFILE_NAME
 ```
 
-This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC, security groups, and EC2 instance with the IAM role for Systems Manager access. Remember to replace `PROFILE_NAME` with the name of your AWS profile, and to review and approve the IAM permissions for the stack.
+This command synthesizes the CloudFormation template from your CDK code and deploys the stack, creating the specified VPC and security groups. Remember to replace `PROFILE_NAME` with the name of your AWS profile, and to review and approve the IAM permissions for the stack.
 
 ## Best Practices and Security Considerations
 
@@ -300,36 +209,6 @@ To verify the deployment:
 - **VPC**: Open the AWS Management Console and navigate to the VPC service. Check the VPC, subnets, and route tables to ensure they were created correctly.
 - **Security Groups**: Navigate to the EC2 service and check the security groups to ensure they have the correct rules.
 
-## Explanation of AWS Systems Manager Session Manager
-
-AWS Systems Manager Session Manager is a powerful tool that provides the following benefits:
-
-- **Secure Access**: Eliminates the need to open inbound ports (such as SSH or RDP) and manage bastion hosts, thereby reducing security risks.
-- **Auditability**: All session activity is logged in AWS CloudTrail, providing an audit trail of access and actions taken on the instances.
-- **Ease of Use**: Allows administrators to manage instances using a web browser or AWS CLI, simplifying access management.
-
-### Benefits of Using Session Manager
-
-1. **Enhanced Security**: By not requiring open ports for SSH or RDP, Session Manager reduces the attack surface of your instances. Access is managed through IAM policies, which can be fine-tuned for granular control.
-2. **Audit and Compliance**: Every session is logged, making it easier to meet compliance and auditing requirements. You can review session logs to monitor activity and detect any unauthorized actions.
-3. **No Need for SSH Keys**: Managing SSH keys can be cumbersome and risky if not handled properly. Session Manager eliminates the need for key management, streamlining access control.
-
-### Setting Up Permissions for Session Manager
-
-Ensure your EC2 instances have the necessary IAM role with the `AmazonSSMManagedInstanceCore` policy attached. This policy provides the required permissions for the instance to communicate with Systems Manager. We have created the role and set up the permissions with the code below. In our next lab we will configure an EC2 instance to use this role.
-
-```typescript
-// IAM role for EC2 instance to use SSM
-const role = new Role(this, 'SSMRole', {
-  assumedBy: new ServicePrincipal('ec2.amazonaws.com'),
-})
-
-// Attach the AmazonSSMManagedInstanceCore managed policy to the role
-role.addManagedPolicy(
-  ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore')
-)
-```
-
 ## Checkpoint
 
 At this point, you should have:
@@ -338,7 +217,6 @@ At this point, you should have:
 - Created security groups for EC2 and RDS
 - Configured route tables for the subnets
 - Set up a NAT Gateway for the private subnet
-- Created an IAM role for EC2 instances to use SSM
 - Verified the network configuration in the AWS console
 
 If you're encountering issues, check the following:
@@ -348,4 +226,4 @@ If you're encountering issues, check the following:
 - Check that your security group rules allow the necessary inbound and outbound traffic
 - Make sure the NAT Gateway is placed in a public subnet
 
-Now we might have done some of the SSM set up in this lab, but we still need an EC2 instance to connect to. Let's do that in the next lab.
+Now we have done the basic network setup, but we still need a workload to run in this network. Let's do that in the next lab.
