@@ -57,7 +57,7 @@ Throughout this workshop, we'll build our architecture in stages. This increment
 
    ![Networking Lab Architecture](media/lab_3_arch.drawio.svg)
 
-4. **Core Services**: Adding EC2, security, and S3 with bucket policy.
+4. **Core Services**: Adding ECS Fargate, security, and S3 with bucket policy.
 
    ![Core Services Lab Architecture](media/lab_4_arch.drawio.svg)
 
@@ -113,10 +113,10 @@ Throughout this workshop, we'll build our architecture in stages. This increment
 
 #### 4. Basic AWS Services
 
-- **Introduction to core services (EC2, S3, RDS, etc.)**
+- **Introduction to core services (ECS, S3, RDS, etc.)**
 - **Understanding the AWS Management Console and CLI**
 - **Hands-On: Deploy basic services using CDK**
-  - Use CDK to create an S3 bucket and an EC2 instance
+  - Use CDK to create an S3 bucket and containers running on ECS Fargate
 
 #### 5. Amazon RDS
 
@@ -128,19 +128,18 @@ Throughout this workshop, we'll build our architecture in stages. This increment
   - Create an RDS instance with CDK
   - Configure database parameters and settings
 
+#### 6. Operations and Troubleshooting
+- **Introduction to CI/CD with GitHub Actions**
+- **Introduction to Monitoring, Logging and Troubleshooting for ECS Fargate**
+- **Hands-On:**
+    - Add CI/CD pipeline with GitHub Actions
+    - Configure the ECS Fargate cluster for accessing containers with ECS Exec and AWS Session Manager
+
 ## Workshop Duration
 
 Total estimated time: 4-8 hours
 
 This is a self-paced workshop. The time ranges provided for each lab are estimates, and you should feel free to spend more time on areas you find challenging or interesting. Remember to take breaks as needed.
-
-- Lab 1: 30-60 minutes
-- Lab 2: 45-75 minutes
-- Lab 3: 45-90 minutes
-- Lab 4: 45-90 minutes
-- Lab 5: 45-90 minutes
-
-Note: Actual duration may vary based on individual pace and prior experience.
 
 ## Conclusion
 
