@@ -14,6 +14,8 @@ This glossary provides definitions for key AWS terms used throughout the worksho
 
 - **Amazon EC2 (Elastic Compute Cloud)**: A web service that provides secure, resizable compute capacity in the cloud.
 
+- **Amazon ECS (Elastic Compute Service)**: A fully managed container orchestration service that allows you to run, stop, and manage containers on a cluster.
+
 - **AWS IAM (Identity and Access Management)**: A web service that helps you securely control access to AWS resources.
 
 - **Amazon RDS (Relational Database Service)**: A web service that makes it easier to set up, operate, and scale a relational database in the cloud.
@@ -41,6 +43,8 @@ This glossary provides definitions for key AWS terms used throughout the worksho
 - **AWS Elastic Beanstalk**: A service for deploying and scaling web applications and services.
 
 - **AWS Global Accelerator**: A networking service that improves the availability and performance of applications.
+
+- **Amazon KMS**: A managed service that makes it easy for you to create and control the encryption keys used to encrypt your data.
 
 - **AWS Lambda**: AWS's serverless compute service that lets you run code without provisioning or managing servers.
 
