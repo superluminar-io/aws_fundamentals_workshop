@@ -21,6 +21,11 @@
     - [RDS Overview](labs/lab_5/0_rds_overview)
     - [Hands On](labs/lab_5/1_hands_on)
     - [Resources](labs/lab_5/2_resources)
+  - Lab 6
+    - [Operations Overview](labs/lab_56/0_operations_overview)
+    - [Hands On: GitHub Actions](labs/lab_6/1_hands_on_github)
+    - [Hands On: Troubleshooting](labs/lab_6/2_hands_on_container)
+    - [Resources](labs/lab_6/3_resources)
   - [Clean Up](labs/lab_cleanup)
 - [Next Steps](2_next)
 - [Conclusion](3_conclusion)
