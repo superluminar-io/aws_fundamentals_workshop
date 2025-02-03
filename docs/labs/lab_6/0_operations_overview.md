@@ -67,8 +67,13 @@ By monitoring metrics such as CPUUtilization, MemoryUtilization, and NetworkIn/O
 Additionally, there are more advanced metrics available, like CPU utilization per Container or storage usage, when using the Container Insights feature for ECS. Enabling this feature comes with extra costs.
 
 ### Connect to your containers
-If you need to troubleshoot issues within your containers, you can connect to them using the AWS Systems Manager Session Manager.
-// TODO: check if needed; add some secrutiy advise; https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/
+If you need to troubleshoot issues within your running containers, you can connect to them through **ECS Exec** using a ssh connection through the AWS Systems Manager Session Manager.
+Since this step shouldn't be considered best practice in working with containers, AWS provides an additional built-in observability mechanism, which includes: 
+- Amazon CloudWatch Logs and Amazon S3 for logging the commands and commands output
+- Amazon CloudTrail for auditing and tracking API calls
 
+This connection option offers a secure way to access your containers. You can run commands and view the container's output, but you can't alter the container's configuration or the container itself.
+Commands will be invoked using the ECS `ExecuteCommand` API call. An example: When you invokes a single command (e.g. `pwd`), only the output of the command will be logged to S3 and/or CloudWatch. 
+The command itself will be logged in AWS CloudTrail. XXX To correlate the command with the output, you can use the `session-id` in the logs. XXX TODO! Check if true
 
 By considering these best practices and troubleshooting techniques, you can effectively manage and maintain your ECS Fargate infrastructure and ensure the reliability and performance of your applications.

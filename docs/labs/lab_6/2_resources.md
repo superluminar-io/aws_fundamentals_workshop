@@ -1,6 +1,7 @@
 # Additional Resources for Lab 6
 
-
+https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
 
 To dive deeper into the topics covered in Lab 5, here are some helpful resources:
 
