@@ -12,7 +12,7 @@ In this hands-on section, you will learn how to set up a Virtual Private Cloud (
 
 2. **Define the VPC in Your Stack**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/my-cdk-app-stack.ts` for a TypeScript project). Add the following code to define a VPC with public and private subnets ([it will only use two AZs as our CDK stack is environment agnostic.](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ec2.Vpc.html#maxazs)):
+   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code to define a VPC with public and private subnets ([it will only use two AZs as our CDK stack is environment agnostic.](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ec2.Vpc.html#maxazs)):
 
 ```typescript
 import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib'

@@ -80,7 +80,7 @@ We'll start by creating these resources with incorrect permissions, then we'll f
 
 1. **Create an S3 Bucket and Lambda Function with Incorrect Permissions**
 
-   Open the stack file located in the `lib` directory (e.g., `lib/my-cdk-app-stack.ts` for a TypeScript project). Add the following code:
+   Open the stack file located in the `lib` directory (e.g., `lib/aws-fundamentals-workshop-labs-stack.ts` for a TypeScript project). Add the following code:
 
 ```typescript
 import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
