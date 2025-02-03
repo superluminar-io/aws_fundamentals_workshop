@@ -71,11 +71,16 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
     const fargateTaskDefinition = new FargateTaskDefinition(this, 'TaskDef');
     fargateTaskDefinition.addContainer('AppContainer', {
       containerName: 'web',
-      image: ContainerImage.fromRegistry('nginx:latest'),
+      image: ContainerImage.fromRegistry('ghcr.io/superluminar-io/dct:latest'),
       memoryLimitMiB: 512,
       cpu: 256,
-      logging: LogDrivers.awsLogs({streamPrefix: 'myApp/nginx'}),
-      portMappings: [{containerPort: 80}],
+      logging: LogDrivers.awsLogs({streamPrefix: 'myApp/webapp'}),
+      portMappings: [{containerPort: 8081}],
+      environment: {
+        DB_HOST: 'some-host',
+        DB_USERNAME: 'some-user',
+        DB_PASSWORD: 'some-password',
+      }
     });
 
     // Create a Fargate Service
@@ -94,8 +99,8 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
     service.registerLoadBalancerTargets(
       {
         containerName: 'web',
-        containerPort: 80,
-        newTargetGroupId: 'ecs_nginx',
+        containerPort: 8081,
+        newTargetGroupId: 'ecs_webapp',
         listener: ListenerConfig.applicationListener(listener, {
           protocol: ApplicationProtocol.HTTP,
         }),
@@ -241,7 +246,7 @@ Now, let's proceed with verifying the deployment of these resources:
      1. In the AWS Management Console, navigate to the EC2 service and select load balancer.
      2. Find the DNS name of the Application Load Balancer.
      3. Open a new tab in your web browser and paste the URL.
-     4. You should see a web page indicating the nginx is running.
+     4. You should see a message indicating the web app is running.
 
 2. **Verify a Bucket Policy**
 
