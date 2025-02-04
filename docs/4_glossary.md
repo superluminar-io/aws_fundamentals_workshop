@@ -14,7 +14,7 @@ This glossary provides definitions for key AWS terms used throughout the worksho
 
 - **Amazon EC2 (Elastic Compute Cloud)**: A web service that provides secure, resizable compute capacity in the cloud.
 
-- **Amazon ECS (Elastic Compute Service)**: A fully managed container orchestration service that allows you to run, stop, and manage containers on a cluster.
+- **Amazon ECS (Elastic Container Service)**: A fully managed container orchestration service that allows you to run, stop, and manage containers on a cluster.
 
 - **AWS IAM (Identity and Access Management)**: A web service that helps you securely control access to AWS resources.
 
