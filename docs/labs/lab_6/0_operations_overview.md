@@ -38,7 +38,7 @@ AWS CloudWatch Logs is an essential tool for monitoring and troubleshooting your
 By enabling CloudWatch Logs, you can capture detailed logs from your running containers, which helps in diagnosing issues and understanding application behavior.
 To check the logs, navigate to the CloudWatch console, select the log group associated with your ECS tasks, and review the log streams for relevant information.
 
-<img src="../../media/lab_6_cloudwatch_logs_console.png" width="650" alt="aws cloudwatch metrics console">
+![aws cloudwatch metrics console](media/lab_6_cloudwatch_logs_console.png)
 
 This allows you to identify errors, performance bottlenecks, and other critical events that may impact your application's performance and reliability.
 
@@ -51,7 +51,7 @@ We already enabled logging in the ECS task definition in lab 4, by adding the `l
 const fargateTaskDefinition = new FargateTaskDefinition(this, 'TaskDef');
 fargateTaskDefinition.addContainer('AppContainer', {
   ...
-  logging: LogDrivers.awsLogs({streamPrefix: 'myApp/nginx'}),
+  logging: LogDrivers.awsLogs({streamPrefix: 'myApp/webapp'}),
   ...
 });
 ``` 
@@ -61,7 +61,7 @@ This configuration sends logs from the container `stdout` to the specified Cloud
 ### Check Container Metrics
 You can check the container's metrics in AWS Cloudwatch Metrics. Cloud Watch Metrics provides built-in metrics for the AWS services and resources you use, including ECS Fargate.
 
-<img src="../../media/lab_6_cloudwatch_metrics_console.png" width="250" alt="aws cloudwatch metrics console">
+![aws cloudwatch metrics console](media/lab_6_cloudwatch_metrics_console.png)
 
 By monitoring metrics such as CPUUtilization, MemoryUtilization, and NetworkIn/Out, you can identify resource bottlenecks and optimize your container configurations. To check these metrics, navigate to the CloudWatch console, select the ECS cluster, and review the relevant metrics for your tasks and services.
 Additionally, there are more advanced metrics available, like CPU utilization per Container or storage usage, when using the Container Insights feature for ECS. Enabling this feature comes with extra costs.
