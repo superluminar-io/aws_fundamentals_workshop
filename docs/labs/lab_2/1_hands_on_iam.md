@@ -1,10 +1,23 @@
 # Lab 2: Identity and Access Management (IAM)
 
-## Introduction to IAM
+In this lab, you will learn how to set up IAM roles and policies using CDK. You will learn the concepts of IAM roles and policies to manage permissions by creating an S3 bucket and a Lambda function that writes a "Hello World" file to the bucket. This exercise will guide you through defining IAM roles and policies in code, deploying them to your AWS account, and verifying the setup.
 
-AWS Identity and Access Management (IAM) is a web service that helps you securely control access to AWS resources. With IAM, you can centrally manage users, security credentials such as access keys, and permissions that control which AWS resources users and applications can access.
+## Lab Architecture
 
-## Set up IAM Roles and Policies Using CDK
+Before we dive into creating IAM roles, policies, and resources, let's take a look at the architecture we'll be building in this lab:
+
+![IAM Basics Lab Architecture](../../media/lab_2_arch.drawio.svg)
+
+This diagram illustrates the key components of our lab:
+
+1. An S3 bucket where we'll store our "Hello World" file.
+2. A Lambda function that will attempt to write to the S3 bucket.
+3. IAM roles and policies that will control the permissions between the Lambda function and the S3 bucket.
+
+We'll start by creating these resources with incorrect permissions, then we'll fix them to demonstrate the importance of proper IAM configuration.
+
+
+### What are the additional AWS Service used in this lab?
 
 In this hands-on section, you will create an S3 bucket with a destroy policy, a Lambda function that writes a "Hello World" file to the bucket, and IAM roles and policies to manage permissions. This exercise will guide you through defining IAM roles and policies in code, deploying them to your AWS account, and verifying the setup.
 
@@ -16,11 +29,15 @@ Amazon Simple Storage Service (Amazon S3) is an object storage service that offe
 
 AWS Lambda is a serverless compute service that lets you run code without provisioning or managing servers. Lambda runs your code only when needed and scales automatically, from a few requests per day to thousands per second. You can use Lambda to run code for virtually any type of application or backend service, all with zero administration.
 
-## Principle of Least Privilege
+**What is Amazon CloudWatch?**
+
+Amazon CloudWatch is a monitoring and observability service. CloudWatch provides you with data and actionable insights to monitor your applications, respond to system-wide performance changes, optimize resource utilization, and get a unified view of operational health.
+
+### Principle of Least Privilege
 
 The principle of least privilege is a fundamental concept in security that states that a user, program, or process should have only the bare minimum privileges necessary to perform its function. In the context of IAM, this means granting only the permissions required for a specific task or role, and nothing more. This practice helps to minimize the potential damage from errors or malicious actions.
 
-## IAM Components Relationship
+### IAM Components Relationship
 
 ![IAM Components Relationship](../../media/lab_2_iam_relationships.drawio.svg)
 
@@ -62,21 +79,8 @@ The principle of least privilege is a fundamental concept in security that state
    - This relationship is represented by arrows connecting IAM Users to IAM Roles.
    - Indicates that User A and User B can assume Role A or Role B, gaining the associated permissions.
 
-## Lab Architecture
 
-Before we dive into creating IAM roles, policies, and resources, let's take a look at the architecture we'll be building in this lab:
-
-![IAM Basics Lab Architecture](../../media/lab_2_arch.drawio.svg)
-
-This diagram illustrates the key components of our lab:
-
-1. An S3 bucket where we'll store our "Hello World" file.
-2. A Lambda function that will attempt to write to the S3 bucket.
-3. IAM roles and policies that will control the permissions between the Lambda function and the S3 bucket.
-
-We'll start by creating these resources with incorrect permissions, then we'll fix them to demonstrate the importance of proper IAM configuration.
-
-## Create IAM Roles, Policies, and Resources
+## Create the stack: IAM Roles, Policies and other ressources with AWS CDK
 
 1. **Create an S3 Bucket and Lambda Function with Incorrect Permissions**
 
@@ -121,6 +125,10 @@ export class AwsFundamentalsWorkshopLabsStack extends Stack {
 
     // Attach the incorrect policy to the Lambda role
     lambdaRole.attachInlinePolicy(incorrectPolicy)
+    
+    // Attach an AWS-managed policy to enable logging to AWS CloudWatch
+    lambdaRole.addManagedPolicy({ managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole' })
+
 
     // Create a Lambda function with inline code
     const lambdaFunction = new Function(this, 'MyLambda', {
@@ -200,76 +208,95 @@ Always carefully review these changes before confirming. If you're unsure about 
 
 This deployment will succeed, but the Lambda function doesn't have the necessary `s3:PutObject` permission to write to the S3 bucket. To see this in action, we need to manually invoke the Lambda function:
 
-3. **Manually Invoke the Lambda Function**
+## Test the Lambda Function
+
+1. **Manually Invoke the Lambda Function**
 
    To manually invoke the Lambda function using the AWS CLI and observe the permission issue, follow these steps:
 
-   a. Open your terminal or command prompt.
+   1. Open your terminal or command prompt.
 
-   b. Use the following AWS CLI command to invoke the Lambda function:
+   2. Use the following AWS CLI command to invoke the Lambda function:
 
-```bash
-aws lambda invoke \
-    --function-name FUNCTION_NAME \
-    --payload '{}' \
-    --cli-binary-format raw-in-base64-out \
-    --profile PROFILE_NAME \
-    --query 'Payload' \
-    --output text \
-    /dev/stdout
-```
+    ```bash
+    aws lambda invoke \
+        --function-name FUNCTION_NAME \
+        --payload '{}' \
+        --cli-binary-format raw-in-base64-out \
+        --profile PROFILE_NAME \
+        --query 'Payload' \
+        --output text \
+        /dev/stdout
+    ```
 
-Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS CloudFormation Console or from the CDK output. Don't forget to also replace `PROFILE_NAME` with your profile.
+    Replace `FUNCTION_NAME` with the name or ARN of your Lambda function. You can find this in the AWS CloudFormation Console or from the CDK output. Don't forget to also replace `PROFILE_NAME` with your profile.
 
-c. Check the terminal for the function's response. You should see an error message indicating a 500 error for the S3 PutObject action. `"Error writing file"`
+   3. Check the terminal for the function's response. You should see an error message indicating a 500 error for the S3 PutObject action. `"Error writing file"`
 
-This error occurs because the Lambda function is trying to write to the S3 bucket, but the current IAM policy only allows reading from the bucket, not writing to it.
+2. **Investigate the Root Cause of The Error**
 
-1. **Update the IAM Policy with Correct Permissions**
+  To check the root cause, you need observe logs of the Lambda function. The logs can be observed in AWS CloudWatch. To check the logs, follow these steps:
+   1. Navigate to your Lambda Function (e.g. through CloudFormation Stack Resources)
+   2. Click on the Monitoring tab
+   3. Click on the `View logs in CloudWatch` button
+   4. Click on the latest Log Stream. In the Log, you should see an error message similar to the following:
+    
+       ```
+       ERROR	Error: AccessDenied: User: arn:aws:sts::XXXXXXX:assumed-role/AwsFundamentalsWorkshopLabsStack-LambdaRoleXXXX/AwsFundamentalsWorkshopLabsStack-MyLambdaXXXXX is not authorized to perform: s3:PutObject on resource: "arn:aws:s3:::awsfundamentalsworkshoplabsstack-mybucketXXXX/hello.txt" because no identity-based policy allows the s3:PutObject action
+       ```
+      
+    This error occurs because the Lambda function is trying to write to the S3 bucket, but the current IAM policy only allows reading from the bucket, not writing to it.
+
+
+3. **Update the IAM Policy with Correct Permissions**
 
    Update the stack file to correct the IAM policy by adding the `s3:PutObject` permission:
 
-```typescript
-// Correct IAM Policy
-const correctPolicy = new Policy(this, 'CorrectPolicy', {
-  statements: [
-    new PolicyStatement({
-      actions: ['s3:GetObject', 's3:PutObject'],
-      resources: [bucket.bucketArn + '/*'],
-    }),
-  ],
-})
+    ```typescript
+    // Correct IAM Policy
+    const correctPolicy = new Policy(this, 'CorrectPolicy', {
+      statements: [
+        new PolicyStatement({
+          actions: ['s3:GetObject', 's3:PutObject'],
+          resources: [bucket.bucketArn + '/*'],
+        }),
+      ],
+    })
+    
+    // Attach the correct policy to the Lambda role
+    lambdaRole.attachInlinePolicy(correctPolicy)
+    ```
 
-// Attach the correct policy to the Lambda role
-lambdaRole.attachInlinePolicy(correctPolicy)
-```
+4. **Deploy the Stack with Correct Permissions**
 
-5. **Deploy the Stack with Correct Permissions**
+    Deploy the stack again with the correct permissions:
+    
+    ```bash
+    cdk deploy --profile PROFILE_NAME
+    ```
 
-Deploy the stack again with the correct permissions:
+  This deployment will update permissions as you'll see in your terminal, enter `y` to confirm the changes, and the Lambda function will now have the necessary permissions to write the "Hello World" file to the S3 bucket. 
 
-```bash
-cdk deploy --profile PROFILE_NAME
-```
+5. **Verify the Correct Permissions**
+  
+  To verify this, let's invoke the Lambda function again:
+  
+  Use the AWS CLI command to invoke the Lambda function:
 
-This deployment will update permissions as you'll see in your terminal, enter `y` to confirm the changes, and the Lambda function will now have the necessary permissions to write the "Hello World" file to the S3 bucket. To verify this, let's invoke the Lambda function again:
-
-a. Use the AWS CLI command to invoke the Lambda function:
-
-```bash
-aws lambda invoke \
-    --function-name FUNCTION_NAME \
-    --payload '{}' \
-    --cli-binary-format raw-in-base64-out \
-    --profile PROFILE_NAME \
-    --query 'Payload' \
-    --output text \
-    /dev/stdout
-```
-
-Replace `FUNCTION_NAME` with the name or ARN of your Lambda function and `PROFILE_NAME` with your profile. You can find the function name in the AWS CloudFormation Console or from the CDK output.
-
-Now you should see a 200 message: `"File written!"`
+    ```bash
+    aws lambda invoke \
+        --function-name FUNCTION_NAME \
+        --payload '{}' \
+        --cli-binary-format raw-in-base64-out \
+        --profile PROFILE_NAME \
+        --query 'Payload' \
+        --output text \
+        /dev/stdout
+    ```
+    
+    Replace `FUNCTION_NAME` with the name or ARN of your Lambda function and `PROFILE_NAME` with your profile. You can find the function name in the AWS CloudFormation Console or from the CDK output.
+    
+    Now you should see a 200 message: `"File written!"`
 
 6. **Verify the Deployment**
 
